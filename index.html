@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RestoOS — Sistem Manajemen Rumah Makan & Business Intelligence (Versi Final Kompleks)</title>
+  <title>RestoOS — Sistem Manajemen Rumah Makan (Integrasi Terhubung Full)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -37,7 +37,7 @@
 </head>
 <body class="min-h-screen selection:bg-emerald-500 selection:text-white">
   
-  <!-- Top Navigation Header -->
+  <!-- Header Bar -->
   <header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl px-4 md:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20 font-black">
@@ -47,17 +47,17 @@
         <div class="flex items-center gap-2">
           <span class="font-extrabold text-base md:text-lg tracking-tight text-white">RestoOS BI Platform</span>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> VERSI FINAL KOMPLIT
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> INTEGRATED DATA LINKED
           </span>
         </div>
-        <p class="text-[11px] text-slate-400">Integrated Restaurant Operations & BI Platform v1.0</p>
+        <p class="text-[11px] text-slate-400">Order → Invoice → CRM → Finance Terhubung Otomatis</p>
       </div>
     </div>
 
-    <!-- Role Switcher & Realtime Status -->
+    <!-- Role Switcher -->
     <div class="flex items-center gap-3">
       <div class="hidden sm:flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
-        ⚡ Real-Time Sync Active
+        ⚡ Data Cloud Linked
       </div>
 
       <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
@@ -75,9 +75,8 @@
 
   <!-- Sidebar & Main Workspace -->
   <div class="flex flex-col md:flex-row min-h-[calc(100vh-65px)]">
-    <!-- Navigation Sidebar -->
     <aside class="w-full md:w-64 bg-slate-950/80 border-r border-slate-800 p-4 space-y-2 shrink-0">
-      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Seluruh Modul Operasional</div>
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Modul Terintegrasi</div>
       
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full text-left p-3 rounded-2xl text-xs font-bold transition-all bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10">
         📊 1. Business BI Dashboard
@@ -92,46 +91,47 @@
         💰 4. Finance & AR Tracker
       </button>
       <button onclick="switchTab('crm')" id="nav-crm" class="nav-btn w-full text-left p-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900">
-        🔔 5. Customer Follow-up & CRM
+        🔔 5. Customer Follow-up & CRM <span id="badge-crm" class="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">0</span>
       </button>
       <button onclick="switchTab('attendance')" id="nav-attendance" class="nav-btn w-full text-left p-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900">
         📸 6. Absensi Selfie & Geofence
       </button>
       <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full text-left p-3 rounded-2xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900">
-        ⚙️ 7. Pengaturan Usaha & System
+        ⚙️ 7. Pengaturan Usaha
       </button>
     </aside>
 
-    <!-- Main Workspace -->
     <main id="main-content" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-x-hidden">
-      <!-- Renders dynamically -->
+      <!-- Dynamic View -->
     </main>
   </div>
 
-  <!-- Toast Container -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 pointer-events-none"></div>
 
-  <!-- Modal Container -->
   <div id="modal-container" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
     <div id="modal-content" class="relative w-full max-w-2xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col p-6">
-      <!-- Renders dynamically -->
+      <!-- Dynamic Modal -->
     </div>
   </div>
 
-  <!-- Complete Master Engine JavaScript -->
   <script>
-    const RESTO_COORDS = { lat: -6.2088, lon: 106.8456 };
-
-    // Master State
+    // Master State with Full Cross-Module Linking
     const state = {
       role: 'owner',
       currentTab: 'dashboard',
-      orders: JSON.parse(localStorage.getItem('resto_final_orders')) || [
+      customers: JSON.parse(localStorage.getItem('resto_linked_customers')) || [
+        { id: 'c1', name: 'Bpk. Hendra Wijaya', phone: '081234567890', address: 'Jl. Sudirman No. 45, Jakarta Selatan', tag: 'VIP', lifetimeValue: 12500000, totalOrders: 8, notes: 'Suka pedas sedang, Minta invoice via WA' },
+        { id: 'c2', name: 'Ibu Ratna Pertiwi', phone: '081987654321', address: 'Wisma Asri Lt. 4, Kebayoran Baru', tag: 'Catering Regular', lifetimeValue: 8400000, totalOrders: 4, notes: 'Order harian 20 porsi' },
+        { id: 'c3', name: 'PT Sinergi Mandiri (Bpk. Anton)', phone: '085678901234', address: 'Kawasan Pulogadung Blok C-12', tag: 'Corporate', lifetimeValue: 24500000, totalOrders: 6, notes: 'Transfer bank tenor 7 hari' },
+        { id: 'c4', name: 'Sdri. Maya Indah', phone: '087811223344', address: 'Apt Rasuna Tower 3 Apt 12B', tag: 'Pelanggan Baru', lifetimeValue: 350000, totalOrders: 1, notes: 'Tanpa santan' }
+      ],
+      orders: JSON.parse(localStorage.getItem('resto_linked_orders')) || [
         {
           id: 'ORD-20260805-001',
+          customerId: 'c1',
           customerName: 'Bpk. Hendra Wijaya',
           customerPhone: '081234567890',
-          customerAddress: 'Jl. Sudirman No. 45',
+          customerAddress: 'Jl. Sudirman No. 45, Jakarta Selatan',
           orderType: 'Catering',
           status: 'Diproses',
           orderDate: '2026-08-05T09:30:00',
@@ -141,9 +141,10 @@
         },
         {
           id: 'ORD-20260805-002',
+          customerId: 'c4',
           customerName: 'Sdri. Maya Indah',
           customerPhone: '087811223344',
-          customerAddress: 'Apt Rasuna Tower 3',
+          customerAddress: 'Apt Rasuna Tower 3 Apt 12B',
           orderType: 'Dine-in',
           status: 'Selesai',
           orderDate: '2026-08-05T12:15:00',
@@ -152,49 +153,45 @@
           subtotal: 78000, tax: 7800, shippingFee: 0, totalAmount: 85800, notes: 'Meja No. 04'
         }
       ],
-      invoices: JSON.parse(localStorage.getItem('resto_final_invoices')) || [
+      invoices: JSON.parse(localStorage.getItem('resto_linked_invoices')) || [
         {
-          id: 'INV-20260805-001', orderId: 'ORD-20260805-001', customerName: 'Bpk. Hendra Wijaya', customerPhone: '081234567890', customerAddress: 'Jl. Sudirman No. 45', issueDate: '2026-08-05', dueDate: '2026-08-08', totalAmount: 1562500, paidAmount: 500000, remainingAmount: 1062500, status: 'Sebagian Dibayar', paymentMethod: 'Transfer BCA', items: [{ name: 'Nasi Tumpeng Mini Komplit', qty: 25, price: 45000 }, { name: 'Es Jeruk Peras Alami', qty: 25, price: 10000 }], tax: 137500, shippingFee: 50000
+          id: 'INV-20260805-001', orderId: 'ORD-20260805-001', customerId: 'c1', customerName: 'Bpk. Hendra Wijaya', customerPhone: '081234567890', customerAddress: 'Jl. Sudirman No. 45', issueDate: '2026-08-05', dueDate: '2026-08-08', totalAmount: 1562500, paidAmount: 500000, remainingAmount: 1062500, status: 'Sebagian Dibayar', paymentMethod: 'Transfer BCA', items: [{ name: 'Nasi Tumpeng Mini Komplit', qty: 25, price: 45000 }, { name: 'Es Jeruk Peras Alami', qty: 25, price: 10000 }], tax: 137500, shippingFee: 50000
         },
         {
-          id: 'INV-20260801-004', orderId: 'ORD-20260804-008', customerName: 'PT Sinergi Mandiri (Bpk. Anton)', customerPhone: '085678901234', customerAddress: 'Kawasan Pulogadung', issueDate: '2026-08-01', dueDate: '2026-08-04', totalAmount: 5650000, paidAmount: 0, remainingAmount: 5650000, status: 'Jatuh Tempo', paymentMethod: 'Transfer Mandiri', items: [{ name: 'Paket Catering Prasmanan (50 Porsi)', qty: 2, price: 2500000 }], tax: 500000, shippingFee: 150000
+          id: 'INV-20260801-004', orderId: 'ORD-20260804-008', customerId: 'c3', customerName: 'PT Sinergi Mandiri (Bpk. Anton)', customerPhone: '085678901234', customerAddress: 'Kawasan Pulogadung', issueDate: '2026-08-01', dueDate: '2026-08-04', totalAmount: 5650000, paidAmount: 0, remainingAmount: 5650000, status: 'Jatuh Tempo', paymentMethod: 'Transfer Mandiri', items: [{ name: 'Paket Catering Prasmanan (50 Porsi)', qty: 2, price: 2500000 }], tax: 500000, shippingFee: 150000
         }
       ],
-      expenses: JSON.parse(localStorage.getItem('resto_final_expenses')) || [
+      expenses: JSON.parse(localStorage.getItem('resto_linked_expenses')) || [
         { id: 'EXP-001', date: '2026-08-05', category: 'Bahan Baku', description: 'Belanja Pasar Senen: Ayam & Daging', amount: 1450000, receiptImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=300&q=80' },
         { id: 'EXP-002', date: '2026-08-04', category: 'Operasional', description: 'Gas LPG 12kg (3 tabung)', amount: 630000, receiptImage: null }
       ],
-      customers: JSON.parse(localStorage.getItem('resto_final_customers')) || [
-        { id: 'c1', name: 'Bpk. Hendra Wijaya', phone: '081234567890', address: 'Jl. Sudirman No. 45', tag: 'VIP', lifetimeValue: 12500000, totalOrders: 8, notes: 'Suka pedas sedang' },
-        { id: 'c2', name: 'Ibu Ratna Pertiwi', phone: '081987654321', address: 'Wisma Asri Lt. 4', tag: 'Catering Regular', lifetimeValue: 8400000, totalOrders: 4, notes: 'Order harian 20 porsi' },
-        { id: 'c3', name: 'PT Sinergi Mandiri (Bpk. Anton)', phone: '085678901234', address: 'Kawasan Pulogadung', tag: 'Corporate', lifetimeValue: 24500000, totalOrders: 6, notes: 'Tenor 7 hari' },
-        { id: 'c4', name: 'Sdri. Maya Indah', phone: '087811223344', address: 'Apt Rasuna Tower 3', tag: 'Pelanggan Baru', lifetimeValue: 350000, totalOrders: 1, notes: 'Tanpa santan' }
-      ],
-      attendance: JSON.parse(localStorage.getItem('resto_final_attendance')) || [
+      attendance: JSON.parse(localStorage.getItem('resto_linked_attendance')) || [
         { id: 'att-1', name: 'Budi Santoso', role: 'Koki Utama', date: '2026-08-05', checkInTime: '07:45:12', checkOutTime: '17:05:00', status: 'Hadir Tepat Waktu', statusCode: 'H', photoUrl: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80', distanceMeters: 24, isOutRadius: false },
         { id: 'att-2', name: 'Siti Aminah', role: 'Kasir & Admin', date: '2026-08-05', checkInTime: '08:18:40', checkOutTime: null, status: 'Terlambat', statusCode: 'T', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80', distanceMeters: 65, isOutRadius: false }
       ],
-      reminders: JSON.parse(localStorage.getItem('resto_final_reminders')) || [
-        { id: 'rem-1', type: 'Payment Overdue', title: 'Invoice Overdue H+1', customerName: 'PT Sinergi Mandiri', customerPhone: '085678901234', amount: 5650000, status: 'Pending', waTemplate: 'Halo Bpk. Anton, mengingatkan Invoice INV-20260801-004 telah jatuh tempo. Mohon info pelunasan. Terima kasih!' },
-        { id: 'rem-2', type: 'Payment Reminder', title: 'Follow-up H-1 Pembayaran', customerName: 'Bpk. Hendra Wijaya', customerPhone: '081234567890', amount: 1062500, status: 'Pending', waTemplate: 'Halo Bpk. Hendra, mengingatkan sisa tagihan Rp 1.062.500. Terima kasih!' }
+      reminders: JSON.parse(localStorage.getItem('resto_linked_reminders')) || [
+        { id: 'rem-1', type: 'Payment Overdue', title: 'Invoice Overdue H+1', customerName: 'PT Sinergi Mandiri', customerPhone: '085678901234', amount: 5650000, status: 'Pending', waTemplate: 'Halo Bpk. Anton dari PT Sinergi Mandiri, mengingatkan Invoice INV-20260801-004 sebesar Rp 5.650.000 telah jatuh tempo. Mohon konfirmasi pelunasan. Terima kasih!' },
+        { id: 'rem-2', type: 'Payment Reminder', title: 'Follow-up H-1 Pembayaran', customerName: 'Bpk. Hendra Wijaya', customerPhone: '081234567890', amount: 1062500, status: 'Pending', waTemplate: 'Halo Bpk. Hendra Wijaya, mengingatkan sisa tagihan invoice sebesar Rp 1.062.500. Terima kasih!' }
       ]
     };
 
     function saveState() {
-      localStorage.setItem('resto_final_orders', JSON.stringify(state.orders));
-      localStorage.setItem('resto_final_invoices', JSON.stringify(state.invoices));
-      localStorage.setItem('resto_final_expenses', JSON.stringify(state.expenses));
-      localStorage.setItem('resto_final_customers', JSON.stringify(state.customers));
-      localStorage.setItem('resto_final_attendance', JSON.stringify(state.attendance));
-      localStorage.setItem('resto_final_reminders', JSON.stringify(state.reminders));
+      localStorage.setItem('resto_linked_customers', JSON.stringify(state.customers));
+      localStorage.setItem('resto_linked_orders', JSON.stringify(state.orders));
+      localStorage.setItem('resto_linked_invoices', JSON.stringify(state.invoices));
+      localStorage.setItem('resto_linked_expenses', JSON.stringify(state.expenses));
+      localStorage.setItem('resto_linked_attendance', JSON.stringify(state.attendance));
+      localStorage.setItem('resto_linked_reminders', JSON.stringify(state.reminders));
       updateBadges();
     }
 
     function updateBadges() {
       const bOrders = document.getElementById('badge-orders');
       const bInvoices = document.getElementById('badge-invoices');
+      const bCrm = document.getElementById('badge-crm');
       if (bOrders) bOrders.innerText = state.orders.length;
       if (bInvoices) bInvoices.innerText = state.invoices.length;
+      if (bCrm) bCrm.innerText = state.customers.length;
     }
 
     function formatRupiah(num) {
@@ -261,7 +258,7 @@
         <div class="space-y-6">
           <div class="p-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-500/30">
             <h1 class="text-2xl font-extrabold text-white">Business Intelligence Center</h1>
-            <p class="text-xs text-slate-400 mt-1">Pantau omset harian, order aktif, piutang tagihan, dan absensi staf secara real-time.</p>
+            <p class="text-xs text-slate-400 mt-1">Order → Invoice → CRM terintegrasi otomatis secara terpusat.</p>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -281,9 +278,9 @@
               <div class="text-xs text-rose-400 mt-1">${state.invoices.filter(i => i.remainingAmount > 0).length} invoice perlu ditagih</div>
             </div>
             <div class="p-5 rounded-2xl glass-card">
-              <div class="text-xs text-slate-400 font-semibold">Kehadiran Staf Hari Ini</div>
-              <div class="text-2xl font-extrabold text-white mt-2">${state.attendance.length} / 5 Staf</div>
-              <div class="text-xs text-amber-400 font-semibold mt-1">Foto Selfie + GPS Verifikasi</div>
+              <div class="text-xs text-slate-400 font-semibold">Database Pelanggan CRM</div>
+              <div class="text-2xl font-extrabold text-amber-300 mt-2">${state.customers.length} Pelanggan</div>
+              <div class="text-xs text-slate-400 mt-1">Terhubung ke Form Order</div>
             </div>
           </div>
 
@@ -316,7 +313,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h2 class="text-xl font-extrabold text-white">Order Management (Dapur & Catering)</h2>
-              <p class="text-xs text-slate-400">Pencatatan orderan masuk & bon dapur.</p>
+              <p class="text-xs text-slate-400">Terhubung langsung dengan Database Pelanggan & Module Invoice.</p>
             </div>
             <button onclick="openOrderModal()" class="px-5 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-white shadow-lg shadow-emerald-500/25">
               + Tambah Order Baru
@@ -329,12 +326,12 @@
                 <thead>
                   <tr class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
                     <th class="p-4">No. Order</th>
-                    <th class="p-4">Pelanggan</th>
+                    <th class="p-4">Pelanggan (CRM)</th>
                     <th class="p-4">Tipe</th>
-                    <th class="p-4">Detail Items Pesanan</th>
+                    <th class="p-4">Items Pesanan</th>
                     <th class="p-4">Total Nilai</th>
                     <th class="p-4">Status</th>
-                    <th class="p-4 text-right">Aksi</th>
+                    <th class="p-4 text-right">Aksi Terintegrasi</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800">
@@ -357,7 +354,7 @@
                       </td>
                       <td class="p-4 text-right space-x-2">
                         <button onclick="showKitchenBon('${o.id}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px]">Bon Dapur</button>
-                        <button onclick="generateInvoiceFromOrder('${o.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 font-bold text-[11px]">+ Invoice</button>
+                        <button onclick="generateInvoiceFromOrder('${o.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 font-bold text-[11px]">+ Generate Invoice</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -378,19 +375,22 @@
       }
     }
 
+    // Direct Integration: Order -> Invoice -> Customer LTV
     function generateInvoiceFromOrder(orderId) {
       const order = state.orders.find(o => o.id === orderId);
       if (!order) return;
+      
       const existing = state.invoices.find(i => i.orderId === orderId);
       if (existing) {
         switchTab('invoices');
-        showToast('Invoice Ada', `Invoice ${existing.id} sudah pernah diterbitkan.`);
+        showToast('Invoice Sudah Terhubung', `Invoice ${existing.id} sudah diterbitkan untuk order ini.`);
         return;
       }
 
       const newInv = {
         id: `INV-${Date.now().toString().slice(-4)}`,
         orderId: order.id,
+        customerId: order.customerId || 'c1',
         customerName: order.customerName,
         customerPhone: order.customerPhone,
         customerAddress: order.customerAddress,
@@ -409,7 +409,7 @@
       state.invoices.unshift(newInv);
       saveState();
       switchTab('invoices');
-      showToast('Invoice Diterbitkan!', `Invoice ${newInv.id} sebesar ${formatRupiah(newInv.totalAmount)} dibuat.`);
+      showToast('Invoice Berhasil Di-Generate!', `Invoice ${newInv.id} sebesar ${formatRupiah(newInv.totalAmount)} terhubung ke data pelanggan ${order.customerName}.`);
     }
 
     // 3. Invoice & Billing
@@ -417,8 +417,8 @@
       container.innerHTML = `
         <div class="space-y-4">
           <div>
-            <h2 class="text-xl font-extrabold text-white">Invoice & Billing System</h2>
-            <p class="text-xs text-slate-400">Penagihan otomatis & pengiriman via WhatsApp / PDF.</p>
+            <h2 class="text-xl font-extrabold text-white">Invoice & Billing System (Terhubung ke Order & WA)</h2>
+            <p class="text-xs text-slate-400">Setiap invoice terhubung 1-to-1 dengan data orderan & database pelanggan.</p>
           </div>
 
           <div class="rounded-3xl glass-card overflow-hidden">
@@ -426,24 +426,24 @@
               <table class="w-full text-left text-xs">
                 <thead>
                   <tr class="bg-slate-900 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
-                    <th class="p-4">No. Invoice</th>
+                    <th class="p-4">No. Invoice & Link Order</th>
                     <th class="p-4">Pelanggan</th>
                     <th class="p-4">Total Tagihan</th>
                     <th class="p-4">Sisa Tagihan</th>
-                    <th class="p-4">Status</th>
-                    <th class="p-4 text-right">Aksi Penagihan</th>
+                    <th class="p-4">Status Bayar</th>
+                    <th class="p-4 text-right">Aksi Penagihan WA</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800">
                   ${state.invoices.map(inv => `
                     <tr class="hover:bg-slate-900/50">
-                      <td class="p-4 font-extrabold text-white">${inv.id}</td>
-                      <td class="p-4 font-bold text-slate-200">${inv.customerName}</td>
+                      <td class="p-4 font-extrabold text-white">${inv.id}<div class="text-[10px] text-emerald-400 font-normal">Dari ${inv.orderId}</div></td>
+                      <td class="p-4 font-bold text-slate-200">${inv.customerName}<div class="text-[10px] text-slate-400">${inv.customerPhone}</div></td>
                       <td class="p-4 font-extrabold text-white">${formatRupiah(inv.totalAmount)}</td>
                       <td class="p-4 font-extrabold text-rose-400">${formatRupiah(inv.remainingAmount)}</td>
                       <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${inv.status === 'Lunas' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${inv.status}</span></td>
                       <td class="p-4 text-right space-x-2">
-                        <a href="${getWhatsAppLink(inv.customerPhone, `Halo Kak ${inv.customerName}, berikut invoice ${inv.id} dari Resto Syukuran sebesar ${formatRupiah(inv.totalAmount)}. Sisa tagihan: ${formatRupiah(inv.remainingAmount)}. Terima kasih!`)}" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-lg shadow-emerald-600/30">Kirim WA</a>
+                        <a href="${getWhatsAppLink(inv.customerPhone, `Halo Kak ${inv.customerName}, berikut invoice ${inv.id} sebesar ${formatRupiah(inv.totalAmount)}. Sisa tagihan: ${formatRupiah(inv.remainingAmount)}. Terima kasih!`)}" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-lg shadow-emerald-600/30">Kirim WA</a>
                         <button onclick="showInvoiceDetail('${inv.id}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px]">Detail Invoice</button>
                       </td>
                     </tr>
@@ -464,7 +464,7 @@
           <div class="flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-white">Finance & Accounts Receivable Tracker</h2>
-              <p class="text-xs text-slate-400">Pemasukan, piutang, dan pengeluaran operasional.</p>
+              <p class="text-xs text-slate-400">Pemasukan kas, pelunasan piutang, dan pengeluaran operasional.</p>
             </div>
             <div class="flex gap-2">
               <button onclick="openExpenseModal()" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-500/25">
@@ -507,29 +507,35 @@
       document.body.removeChild(link);
     }
 
-    // 5. CRM
+    // 5. CRM & Database Pelanggan
     function renderCRM(container) {
       container.innerHTML = `
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div class="flex justify-between items-center">
-            <h2 class="text-xl font-extrabold text-white">Customer Follow-up & CRM Database</h2>
-            <button onclick="openCustomerModal()" class="px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs">+ Tambah Pelanggan</button>
+            <div>
+              <h2 class="text-xl font-extrabold text-white">Customer Database & Follow-up CRM</h2>
+              <p class="text-xs text-slate-400">Data pelanggan terhubung langsung dengan form Order & Invoice.</p>
+            </div>
+            <button onclick="openCustomerModal()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-500/25">
+              + Tambah Pelanggan Baru
+            </button>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            ${state.reminders.map(rem => `
+
+          <!-- Customer Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            ${state.customers.map(cust => `
               <div class="p-5 rounded-3xl glass-card space-y-3">
                 <div class="flex justify-between items-center">
-                  <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300">${rem.type}</span>
-                  <span class="text-[10px] text-amber-400 font-bold">Pending Action</span>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${cust.tag}</span>
+                  <span class="text-[10px] text-slate-400">${cust.totalOrders} Order</span>
                 </div>
-                <h4 class="text-sm font-bold text-white">${rem.title}</h4>
-                <div class="p-3 rounded-2xl bg-slate-950 text-xs">
-                  <div class="font-bold text-white">${rem.customerName}</div>
-                  <div class="text-rose-400 font-bold mt-1">Nominal: ${formatRupiah(rem.amount)}</div>
+                <h4 class="text-sm font-bold text-white">${cust.name}</h4>
+                <div class="text-xs text-slate-400">${cust.phone}</div>
+                <div class="text-[11px] text-slate-500 truncate">${cust.address}</div>
+                <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
+                  <span class="text-[10px] text-slate-400">LTV:</span>
+                  <span class="font-bold text-emerald-400 text-xs">${formatRupiah(cust.lifetimeValue)}</span>
                 </div>
-                <a href="${getWhatsAppLink(rem.customerPhone, rem.waTemplate)}" target="_blank" class="w-full block text-center py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-600/30">
-                  Kirim WA Follow-up
-                </a>
               </div>
             `).join('')}
           </div>
@@ -591,27 +597,44 @@
       `;
     }
 
-    // Modal Builder Functions
+    // Modal Builder: Order Form with Dropdown Customer Picker
     function openOrderModal() {
       const modal = document.getElementById('modal-container');
       const content = document.getElementById('modal-content');
       modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md';
+      
+      const customerOptions = state.customers.map(c => `<option value="${c.id}">${c.name} (${c.phone}) - ${c.tag}</option>`).join('');
+
       content.innerHTML = `
         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-          <h3 class="text-base font-bold text-white">📝 Input Order Baru</h3>
+          <h3 class="text-base font-bold text-white">📝 Input Order Baru (Terhubung ke CRM)</h3>
           <button onclick="closeModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
         </div>
         <form onsubmit="submitNewOrder(event)" class="space-y-4 pt-4">
-          <div>
-            <label class="text-xs font-semibold text-slate-400 block mb-1">Nama Pelanggan *</label>
-            <input type="text" id="ord-cust-name" required placeholder="Bpk. Hendra Wijaya" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+          
+          <!-- Dropdown Picker Data Pelanggan -->
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+            <label class="text-xs font-bold text-emerald-400 flex items-center justify-between">
+              <span>👥 Ambil Data dari Database Pelanggan CRM:</span>
+            </label>
+            <select id="ord-cust-select" onchange="autoFillCustomer(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 font-bold focus:outline-none focus:border-emerald-500">
+              <option value="">-- Pilih Pelanggan Lama / Masukkan Baru --</option>
+              ${customerOptions}
+            </select>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
+              <label class="text-xs font-semibold text-slate-400 block mb-1">Nama Pelanggan *</label>
+              <input type="text" id="ord-cust-name" required placeholder="Bpk. Hendra Wijaya" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
               <label class="text-xs font-semibold text-slate-400 block mb-1">No. HP / WA *</label>
               <input type="text" id="ord-cust-phone" required placeholder="081234567890" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
             </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="text-xs font-semibold text-slate-400 block mb-1">Tipe Order</label>
               <select id="ord-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-bold">
@@ -620,6 +643,10 @@
                 <option value="Catering">Catering / Prasmanan</option>
                 <option value="Pre-order">Pre-order Special</option>
               </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-400 block mb-1">Alamat Pengiriman / Meja</label>
+              <input type="text" id="ord-cust-address" placeholder="Jl. Sudirman No. 45 / Meja 04" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
             </div>
           </div>
 
@@ -665,7 +692,19 @@
           </div>
         </form>
       `;
+
       setTimeout(() => calculateOrderTotal(), 50);
+    }
+
+    function autoFillCustomer(custId) {
+      if (!custId) return;
+      const cust = state.customers.find(c => c.id === custId);
+      if (cust) {
+        document.getElementById('ord-cust-name').value = cust.name;
+        document.getElementById('ord-cust-phone').value = cust.phone;
+        document.getElementById('ord-cust-address').value = cust.address;
+        showToast('Data Pelanggan Terisi', `Mengambil data ${cust.name} dari CRM.`);
+      }
     }
 
     function calculateOrderTotal() {
@@ -683,8 +722,10 @@
 
     function submitNewOrder(e) {
       e.preventDefault();
+      const custId = document.getElementById('ord-cust-select').value || `c${Date.now().toString().slice(-4)}`;
       const name = document.getElementById('ord-cust-name').value;
       const phone = document.getElementById('ord-cust-phone').value;
+      const address = document.getElementById('ord-cust-address').value;
       const type = document.getElementById('ord-type').value;
       const itemVal = document.getElementById('ord-item-name').value.split('|');
       const itemName = itemVal[0];
@@ -696,10 +737,21 @@
       const tax = Math.round(subtotal * 0.1);
       const totalAmount = subtotal + tax;
 
+      // Auto add to CRM if new customer
+      const existingCust = state.customers.find(c => c.id === custId || c.phone === phone);
+      if (!existingCust) {
+        state.customers.unshift({ id: custId, name, phone, address, tag: 'Pelanggan Baru', lifetimeValue: totalAmount, totalOrders: 1 });
+      } else {
+        existingCust.lifetimeValue += totalAmount;
+        existingCust.totalOrders += 1;
+      }
+
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-4)}`,
+        customerId: custId,
         customerName: name,
-        customerPhone: phone || '081234567890',
+        customerPhone: phone,
+        customerAddress: address,
         orderType: type,
         status: 'Diproses',
         items: [{ name: itemName, qty, price, notes }],
@@ -710,7 +762,7 @@
       saveState();
       closeModal();
       renderOrders(document.getElementById('main-content'));
-      showToast('Order Tersimpan!', `Order ${newOrder.id} (${qty}x ${itemName}) siap diproses.`);
+      showToast('Order Terhubung CRM Tersimpan!', `Order ${newOrder.id} (${qty}x ${itemName}) dibuat untuk ${name}.`);
     }
 
     function showKitchenBon(orderId) {
@@ -726,10 +778,11 @@
             <div>NO ORDER: ${order.id}</div>
           </div>
           <div>Pelanggan: <b>${order.customerName}</b> (${order.orderType})</div>
+          <div>Alamat/Meja: ${order.customerAddress || '-'}</div>
           <div class="space-y-1.5 py-2 border-y border-dashed border-slate-700">
             ${order.items.map(it => `<div><b class="text-emerald-400 text-sm">${it.qty}x</b> ${it.name} ${it.notes ? `<div class="text-[11px] text-amber-300 italic pl-3">Note: ${it.notes}</div>` : ''}</div>`).join('')}
           </div>
-          <div class="text-center text-[10px] text-slate-500">*** RESTO-OS LIVE SYSTEM ***</div>
+          <div class="text-center text-[10px] text-slate-500">*** RESTO-OS FULL LINKED SYSTEM ***</div>
         </div>
         <div class="flex justify-end gap-2 pt-4 no-print">
           <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 text-xs font-bold rounded-xl text-slate-300">Tutup</button>
@@ -757,8 +810,9 @@
             </div>
           </div>
           <div>
-            <div class="font-bold text-slate-800">Ditagihkan Kepada: ${inv.customerName}</div>
-            <div class="text-slate-600">Total Tagihan: <b class="text-emerald-700">${formatRupiah(inv.totalAmount)}</b></div>
+            <div class="font-bold text-slate-800">Ditagihkan Kepada: ${inv.customerName} (${inv.customerPhone})</div>
+            <div class="text-slate-600">${inv.customerAddress || 'Alamat tidak dicantumkan'}</div>
+            <div class="text-slate-600 mt-1">Total Tagihan: <b class="text-emerald-700">${formatRupiah(inv.totalAmount)}</b></div>
             <div class="text-rose-600 font-bold">Sisa Tagihan: ${formatRupiah(inv.remainingAmount)}</div>
           </div>
           <div class="p-3 bg-slate-100 rounded-xl text-[11px]">
@@ -876,7 +930,7 @@
       modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md';
       content.innerHTML = `
         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-          <h3 class="text-base font-bold text-white">➕ Tambah Pelanggan Baru</h3>
+          <h3 class="text-base font-bold text-white">➕ Tambah Pelanggan Baru (CRM)</h3>
           <button onclick="closeModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
         </div>
         <form onsubmit="submitNewCustomer(event)" class="space-y-4 pt-4">
@@ -888,9 +942,13 @@
             <label class="text-xs font-semibold text-slate-400 block mb-1">No. WhatsApp *</label>
             <input type="text" id="cust-phone" required placeholder="081234567890" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
           </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-400 block mb-1">Alamat Lengkap</label>
+            <input type="text" id="cust-address" placeholder="Jl. Gatot Subroto No. 12" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+          </div>
           <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
             <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 text-xs font-bold text-white">Simpan Pelanggan</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 text-xs font-bold text-white">Simpan ke CRM</button>
           </div>
         </form>
       `;
@@ -900,25 +958,26 @@
       e.preventDefault();
       const name = document.getElementById('cust-name').value;
       const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
 
       state.customers.unshift({
         id: `c${Date.now().toString().slice(-4)}`,
-        name, phone, address: 'Alamat Baru', tag: 'Pelanggan Baru', lifetimeValue: 0, totalOrders: 0
+        name, phone, address, tag: 'Pelanggan Baru', lifetimeValue: 0, totalOrders: 0
       });
       saveState();
       closeModal();
       renderCRM(document.getElementById('main-content'));
-      showToast('Pelanggan Ditambahkan', `${name} berhasil masuk database.`);
+      showToast('Pelanggan CRM Ditambahkan', `${name} terhubung ke database.`);
     }
 
     function closeModal() {
       document.getElementById('modal-container').className = 'hidden';
     }
 
-    // Auto Polling Every 3 Seconds
+    // Auto Sync Loop
     setInterval(() => {
-      const remoteOrders = JSON.parse(localStorage.getItem('resto_final_orders'));
-      const remoteInvoices = JSON.parse(localStorage.getItem('resto_final_invoices'));
+      const remoteOrders = JSON.parse(localStorage.getItem('resto_linked_orders'));
+      const remoteInvoices = JSON.parse(localStorage.getItem('resto_linked_invoices'));
       if (remoteOrders && JSON.stringify(remoteOrders) !== JSON.stringify(state.orders)) {
         state.orders = remoteOrders;
         renderCurrentTab();
