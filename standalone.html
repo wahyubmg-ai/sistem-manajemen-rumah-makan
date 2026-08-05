@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RestoOS — Sistem Manajemen Rumah Makan Terintegrasi & BI</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel Standalone CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #f1f5f9; }
+    
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(34, 197, 94, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px -10px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Print CSS */
+    @media print {
+      body * { visibility: hidden; }
+      #printable-area, #printable-area * { visibility: visible; }
+      #printable-area { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 20px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-emerald-500 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Helper utilities
+    const formatRupiah = (num) => {
+      if (num === undefined || num === null || isNaN(num)) return 'Rp 0';
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+    };
+
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    const formatDateTime = (dateStr) => {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    };
+
+    const getWhatsAppLink = (phone, text) => {
+      if (!phone) return '#';
+      let formatted = phone.replace(/\D/g, '');
+      if (formatted.startsWith('0')) formatted = '62' + formatted.slice(1);
+      return `https://wa.me/${formatted}?text=${encodeURIComponent(text)}`;
+    };
+
+    // Initial Data Sets
+    const INITIAL_MENU = [
+      { id: 'm1', name: 'Nasi Tumpeng Mini Komplit', price: 45000, category: 'Catering' },
+      { id: 'm2', name: 'Ayam Goreng Kremes + Nasi', price: 32000, category: 'Main Dish' },
+      { id: 'm3', name: 'Bebek Bakar Madu Spesial', price: 48000, category: 'Main Dish' },
+      { id: 'm4', name: 'Es Teh Manis Jumbo', price: 7000, category: 'Beverage' },
+      { id: 'm5', name: 'Es Jeruk Peras Alami', price: 10000, category: 'Beverage' },
+      { id: 'm6', name: 'Paket Catering Prasmanan (50 Porsi)', price: 2500000, category: 'Catering' },
+    ];
+
+    const INITIAL_CUSTOMERS = [
+      { id: 'c1', name: 'Bpk. Hendra Wijaya', phone: '081234567890', address: 'Jl. Sudirman No. 45', tag: 'VIP', lifetimeValue: 12500000, totalOrders: 8, notes: 'Invoice resmi via WA' },
+      { id: 'c2', name: 'Ibu Ratna Pertiwi', phone: '081987654321', address: 'Wisma Asri Lt 4', tag: 'Catering Regular', lifetimeValue: 8400000, totalOrders: 4, notes: 'Order harian 20 porsi' },
+      { id: 'c3', name: 'PT Sinergi Mandiri (Bpk. Anton)', phone: '085678901234', address: 'Kawasan Pulogadung', tag: 'Corporate', lifetimeValue: 24500000, totalOrders: 6, notes: 'Tenor 7 hari' },
+      { id: 'c4', name: 'Sdri. Maya Indah', phone: '087811223344', address: 'Apt Rasuna Apt 12B', tag: 'Pelanggan Baru', lifetimeValue: 350000, totalOrders: 1, notes: 'Tanpa santan' }
+    ];
+
+    const INITIAL_ORDERS = [
+      {
+        id: 'ORD-20260805-001',
+        customerName: 'Bpk. Hendra Wijaya',
+        customerPhone: '081234567890',
+        customerAddress: 'Jl. Sudirman No. 45',
+        orderType: 'Catering',
+        status: 'Diproses',
+        orderDate: '2026-08-05T09:30:00',
+        servingDate: '2026-08-06T11:00:00',
+        items: [{ name: 'Nasi Tumpeng Mini Komplit', qty: 25, price: 45000, notes: 'Pedas sedang' }],
+        subtotal: 1125000,
+        tax: 112500,
+        shippingFee: 50000,
+        totalAmount: 1287500,
+        notes: 'Syukuran Kantor'
+      },
+      {
+        id: 'ORD-20260805-002',
+        customerName: 'Sdri. Maya Indah',
+        customerPhone: '087811223344',
+        customerAddress: 'Apt Rasuna Apt 12B',
+        orderType: 'Dine-in',
+        status: 'Selesai',
+        orderDate: '2026-08-05T12:15:00',
+        servingDate: '2026-08-05T12:30:00',
+        items: [{ name: 'Ayam Goreng Kremes + Nasi', qty: 2, price: 32000, notes: '' }],
+        subtotal: 64000,
+        tax: 6400,
+        shippingFee: 0,
+        totalAmount: 70400,
+        notes: 'Meja No. 04'
+      }
+    ];
+
+    const INITIAL_INVOICES = [
+      {
+        id: 'INV-20260805-001',
+        orderId: 'ORD-20260805-001',
+        customerName: 'Bpk. Hendra Wijaya',
+        customerPhone: '081234567890',
+        customerAddress: 'Jl. Sudirman No. 45',
+        issueDate: '2026-08-05',
+        dueDate: '2026-08-08',
+        totalAmount: 1287500,
+        paidAmount: 500000,
+        remainingAmount: 787500,
+        status: 'Sebagian Dibayar',
+        paymentMethod: 'Transfer BCA',
+        items: [{ name: 'Nasi Tumpeng Mini Komplit', qty: 25, price: 45000 }],
+        tax: 112500,
+        shippingFee: 50000
+      },
+      {
+        id: 'INV-20260801-004',
+        orderId: 'ORD-20260804-008',
+        customerName: 'PT Sinergi Mandiri (Bpk. Anton)',
+        customerPhone: '085678901234',
+        customerAddress: 'Kawasan Pulogadung',
+        issueDate: '2026-08-01',
+        dueDate: '2026-08-04',
+        totalAmount: 5650000,
+        paidAmount: 0,
+        remainingAmount: 5650000,
+        status: 'Jatuh Tempo',
+        paymentMethod: 'Transfer Mandiri',
+        items: [{ name: 'Paket Catering Prasmanan', qty: 2, price: 2500000 }],
+        tax: 500000,
+        shippingFee: 150000
+      }
+    ];
+
+    const INITIAL_EXPENSES = [
+      { id: 'EXP-001', date: '2026-08-05', category: 'Bahan Baku', description: 'Belanja Pasar Senen Ayam & Daging', amount: 1450000, receiptImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=300&q=80' },
+      { id: 'EXP-002', date: '2026-08-04', category: 'Operasional', description: 'Gas LPG 12kg (3 tabung)', amount: 630000, receiptImage: null }
+    ];
+
+    const INITIAL_ATTENDANCE = [
+      { id: 'att-1', name: 'Budi Santoso', role: 'Koki Utama', date: '2026-08-05', checkInTime: '07:45:12', status: 'Hadir Tepat Waktu', statusCode: 'H', photoUrl: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80', distanceMeters: 24, isOutRadius: false },
+      { id: 'att-2', name: 'Siti Aminah', role: 'Kasir & Admin', date: '2026-08-05', checkInTime: '08:18:40', status: 'Terlambat', statusCode: 'T', photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80', distanceMeters: 65, isOutRadius: false }
+    ];
+
+    const INITIAL_REMINDERS = [
+      { id: 'rem-1', type: 'Payment Overdue', severity: 'high', title: 'Invoice Overdue H+1', customerName: 'PT Sinergi Mandiri', customerPhone: '085678901234', amount: 5650000, status: 'Pending', waTemplate: 'Halo Bpk. Anton, mengingatkan Invoice INV-20260801-004 telah jatuh tempo. Terima kasih!' },
+      { id: 'rem-2', type: 'Payment Reminder', severity: 'medium', title: 'Follow-up H-1 Pembayaran', customerName: 'Bpk. Hendra Wijaya', customerPhone: '081234567890', amount: 787500, status: 'Pending', waTemplate: 'Halo Bpk. Hendra, mengingatkan sisa tagihan sebesar Rp 787.500. Terima kasih!' }
+    ];
+
+    // Main App Component
+    function App() {
+      const [currentRole, setCurrentRole] = useState('owner');
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [toast, setToast] = useState(null);
+
+      // Persistent State
+      const [orders, setOrders] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_orders')) || INITIAL_ORDERS);
+      const [invoices, setInvoices] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_invoices')) || INITIAL_INVOICES);
+      const [expenses, setExpenses] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_expenses')) || INITIAL_EXPENSES);
+      const [customers, setCustomers] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_customers')) || INITIAL_CUSTOMERS);
+      const [attendance, setAttendance] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_attendance')) || INITIAL_ATTENDANCE);
+      const [reminders, setReminders] = useState(() => JSON.parse(localStorage.getItem('resto_standalone_reminders')) || INITIAL_REMINDERS);
+
+      useEffect(() => { localStorage.setItem('resto_standalone_orders', JSON.stringify(orders)); }, [orders]);
+      useEffect(() => { localStorage.setItem('resto_standalone_invoices', JSON.stringify(invoices)); }, [invoices]);
+      useEffect(() => { localStorage.setItem('resto_standalone_expenses', JSON.stringify(expenses)); }, [expenses]);
+      useEffect(() => { localStorage.setItem('resto_standalone_customers', JSON.stringify(customers)); }, [customers]);
+      useEffect(() => { localStorage.setItem('resto_standalone_attendance', JSON.stringify(attendance)); }, [attendance]);
+      useEffect(() => { localStorage.setItem('resto_standalone_reminders', JSON.stringify(reminders)); }, [reminders]);
+
+      const showToast = (title, message, type = 'info') => {
+        setToast({ title, message, type });
+        setTimeout(() => setToast(null), 4000);
+      };
+
+      // Modals State
+      const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+      const [receiptOrder, setReceiptOrder] = useState(null);
+      const [activeInvoice, setActiveInvoice] = useState(null);
+      const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+      const [isCameraOpen, setIsCameraOpen] = useState(false);
+      const [cameraPhoto, setCameraPhoto] = useState(null);
+
+      // Render Active Tab Content
+      return (
+        <div className="min-h-screen flex flex-col">
+          {/* Top Navbar */}
+          <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-6 py-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20 font-bold">
+                🍱
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-lg tracking-tight text-white">RestoOS BI</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v1.0 Ready</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Integrated Restaurant Operations & BI Platform</p>
+              </div>
+            </div>
+
+            {/* Role Switcher Pill */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                <span className="text-slate-400 font-semibold">Simulasi Role:</span>
+                <select 
+                  value={currentRole}
+                  onChange={(e) => {
+                    setCurrentRole(e.target.value);
+                    showToast('Role Berganti', `Akses dialihkan ke ${e.target.value.toUpperCase()}`, 'info');
+                  }}
+                  className="bg-transparent font-bold text-emerald-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="owner">👑 Owner / Pemilik</option>
+                  <option value="manager">🛡️ Manajer / Supervisor</option>
+                  <option value="admin">📝 Admin Input</option>
+                  <option value="kasir">💳 Kasir</option>
+                  <option value="karyawan">👤 Karyawan (Absensi saja)</option>
+                </select>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Workspace Layout */}
+          <div className="flex-1 flex flex-col md:flex-row">
+            {/* Sidebar */}
+            <aside className="w-full md:w-64 bg-slate-950/60 border-r border-slate-800 p-4 space-y-2 shrink-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Menu Utama</div>
+              
+              <button onClick={() => setActiveTab('dashboard')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'dashboard' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                📊 Business BI Dashboard
+              </button>
+              <button onClick={() => setActiveTab('orders')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                🛒 Order Management ({orders.length})
+              </button>
+              <button onClick={() => setActiveTab('invoices')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'invoices' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                📄 Invoice & Billing ({invoices.length})
+              </button>
+              <button onClick={() => setActiveTab('finance')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'finance' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                💰 Finance & AR Tracker
+              </button>
+              <button onClick={() => setActiveTab('crm')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'crm' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                🔔 Customer Follow-up & CRM
+              </button>
+              <button onClick={() => setActiveTab('attendance')} className={`w-full text-left p-3 rounded-2xl text-xs font-bold transition-all ${activeTab === 'attendance' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:bg-slate-900'}`}>
+                📸 Absensi Selfie & Geofence
+              </button>
+            </aside>
+
+            {/* Content Area */}
+            <main className="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
+              {activeTab === 'dashboard' && (
+                <div className="space-y-6">
+                  <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-500/30">
+                    <h1 className="text-2xl font-extrabold text-white">Ringkasan Performa Business Intelligence</h1>
+                    <p className="text-xs text-slate-400 mt-1">Pantau omset harian, order aktif, piutang tagihan, dan absensi staf secara real-time.</p>
+                  </div>
+
+                  {/* KPI Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-5 rounded-2xl glass-card">
+                      <div className="text-xs text-slate-400 font-semibold">Penjualan Hari Ini</div>
+                      <div className="text-2xl font-extrabold text-white mt-2">{formatRupiah(3250000)}</div>
+                      <div className="text-xs text-emerald-400 font-semibold mt-1">+14.2% vs kemarin</div>
+                    </div>
+                    <div className="p-5 rounded-2xl glass-card">
+                      <div className="text-xs text-slate-400 font-semibold">Order Aktif</div>
+                      <div className="text-2xl font-extrabold text-cyan-300 mt-2">{orders.filter(o => o.status !== 'Selesai').length} Order</div>
+                      <div className="text-xs text-slate-400 mt-1">Diproses di Dapur</div>
+                    </div>
+                    <div className="p-5 rounded-2xl glass-card">
+                      <div className="text-xs text-slate-400 font-semibold">Tagihan Belum Lunas</div>
+                      <div className="text-2xl font-extrabold text-rose-300 mt-2">{formatRupiah(invoices.reduce((s, i) => s + i.remainingAmount, 0))}</div>
+                      <div className="text-xs text-rose-400 mt-1">{invoices.filter(i => i.remainingAmount > 0).length} invoice perolehan AR</div>
+                    </div>
+                    <div className="p-5 rounded-2xl glass-card">
+                      <div className="text-xs text-slate-400 font-semibold">Staf Hadir</div>
+                      <div className="text-2xl font-extrabold text-white mt-2">{attendance.length} / 5 Staf</div>
+                      <div className="text-xs text-amber-400 mt-1">Selfie + GPS terverifikasi</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Order Management Tab */}
+              {activeTab === 'orders' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-extrabold text-white">Order Management (Dapur & Catering)</h2>
+                    <button onClick={() => setIsOrderModalOpen(true)} className="px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs">
+                      + Tambah Order Baru
+                    </button>
+                  </div>
+
+                  <div className="rounded-3xl glass-card overflow-hidden">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                          <th className="p-4">No. Order</th>
+                          <th className="p-4">Pelanggan</th>
+                          <th className="p-4">Tipe</th>
+                          <th className="p-4">Total</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {orders.map(o => (
+                          <tr key={o.id}>
+                            <td className="p-4 font-bold text-white">{o.id}</td>
+                            <td className="p-4 text-slate-300">{o.customerName}</td>
+                            <td className="p-4 text-amber-300 font-semibold">{o.orderType}</td>
+                            <td className="p-4 font-bold text-emerald-400">{formatRupiah(o.totalAmount)}</td>
+                            <td className="p-4 font-bold text-emerald-300">{o.status}</td>
+                            <td className="p-4 text-right space-x-2">
+                              <button onClick={() => setReceiptOrder(o)} className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold">Bon Dapur</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Invoice & Billing Tab */}
+              {activeTab === 'invoices' && (
+                <div className="space-y-4">
+                  <h2 className="text-xl font-extrabold text-white">Invoice & Billing System</h2>
+                  <div className="rounded-3xl glass-card overflow-hidden">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                          <th className="p-4">No. Invoice</th>
+                          <th className="p-4">Pelanggan</th>
+                          <th className="p-4">Total</th>
+                          <th className="p-4">Sisa Tagihan</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {invoices.map(i => (
+                          <tr key={i.id}>
+                            <td className="p-4 font-bold text-white">{i.id}</td>
+                            <td className="p-4 text-slate-300">{i.customerName}</td>
+                            <td className="p-4 font-bold text-white">{formatRupiah(i.totalAmount)}</td>
+                            <td className="p-4 font-bold text-rose-400">{formatRupiah(i.remainingAmount)}</td>
+                            <td className="p-4 font-bold text-amber-300">{i.status}</td>
+                            <td className="p-4 text-right">
+                              <a href={getWhatsAppLink(i.customerPhone, `Halo Kak ${i.customerName}, berikut invoice ${i.id} sebesar ${formatRupiah(i.totalAmount)}`)} target="_blank" className="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[11px]">Kirim WA</a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </main>
+          </div>
+
+          {/* Toast */}
+          {toast && (
+            <div className="fixed bottom-6 right-6 p-4 rounded-2xl bg-slate-900 border border-emerald-500 text-emerald-300 text-xs font-bold shadow-2xl z-50">
+              <div>{toast.title}</div>
+              <div className="text-slate-300 font-normal mt-0.5">{toast.message}</div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
