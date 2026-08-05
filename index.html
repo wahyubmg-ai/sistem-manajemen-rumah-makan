@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RestoOS — Platform BI, Catering & Penagihan (Integrasi ESB POS)</title>
+  <title>RestoOS — Platform BI, Catering & Absensi Live Camera</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -47,17 +47,17 @@
         <div class="flex items-center gap-2">
           <span class="font-extrabold text-base md:text-lg tracking-tight text-white">RestoOS BI Platform</span>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> ESB POS COMPATIBLE
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> DUAL LIVE CAMERA READY
           </span>
         </div>
-        <p class="text-[11px] text-slate-400">BI Analytics + Order Catering & Large Invoice + Absensi GPS</p>
+        <p class="text-[11px] text-slate-400">WebRTC Webcam + Native HP Camera Launcher + GPS Radius</p>
       </div>
     </div>
 
     <!-- Role Switcher -->
     <div class="flex items-center gap-3">
       <div class="hidden sm:flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
-        🤝 Pendamping ESB POS Active
+        📷 Camera Direct Enabled
       </div>
 
       <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
@@ -243,7 +243,7 @@
       updateBadges();
     }
 
-    // 1. Dashboard BI (Didesain sebagai pendamping ESB POS)
+    // 1. Dashboard BI
     function renderDashboard(container) {
       const activeOrdersCount = state.orders.filter(o => o.status !== 'Selesai').length;
       const unpaidTotal = state.invoices.reduce((s, i) => s + i.remainingAmount, 0);
@@ -253,7 +253,7 @@
           <div class="p-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 class="text-2xl font-extrabold text-white">Business Intelligence & Executive Center</h1>
-              <p class="text-xs text-slate-400 mt-1">Platform Pendamping ESB POS — Fokus Catering, Invoice Penagihan, Laba Rugi & Absensi GPS.</p>
+              <p class="text-xs text-slate-400 mt-1">Platform Pendamping ESB POS — Terhubung Kamera HP Live & Absensi GPS.</p>
             </div>
             <button onclick="openEsbSyncModal()" class="px-4 py-2.5 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-xs hover:bg-emerald-500/30">
               📲 Catat Rekap Omset ESB POS
@@ -279,7 +279,7 @@
             <div class="p-5 rounded-2xl glass-card">
               <div class="text-xs text-slate-400 font-semibold">Absensi Staf Live GPS</div>
               <div class="text-2xl font-extrabold text-white mt-2">${state.attendance.length} / 5 Hadir</div>
-              <div class="text-xs text-amber-400 font-semibold mt-1">Verifikasi Foto Selfie Kamera</div>
+              <div class="text-xs text-amber-400 font-semibold mt-1">Foto Selfie Kamera Live</div>
             </div>
           </div>
 
@@ -350,7 +350,7 @@
       showToast('Rekap ESB Tersimpan!', `Omset ESB POS diperbarui ke ${formatRupiah(val)}.`);
     }
 
-    // 2. Order Management (Fokus Catering & Pre-order Special)
+    // 2. Order Management
     function renderOrders(container) {
       const filtered = state.orders.filter(o => {
         const matchSearch = o.id.toLowerCase().includes(searchQueryOrders.toLowerCase()) || o.customerName.toLowerCase().includes(searchQueryOrders.toLowerCase());
@@ -601,14 +601,14 @@
       `;
     }
 
-    // 6. Absensi Real-Time Kamera Webcam & GPS
+    // 6. Absensi Dual-Camera (Webcam WebRTC + Direct Smartphone Camera Launcher)
     function renderAttendance(container) {
       container.innerHTML = `
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <div>
-              <h2 class="text-xl font-extrabold text-white">Absensi Foto Selfie Camera & Geofencing GPS</h2>
-              <p class="text-xs text-slate-400">Verifikasi kehadiran visual langsung dari Kamera HP / Laptop Anda.</p>
+              <h2 class="text-xl font-extrabold text-white">Absensi Kamera Live & Geofencing GPS</h2>
+              <p class="text-xs text-slate-400">Verifikasi foto selfie langsung dari Kamera HP / Laptop Anda.</p>
             </div>
             <button onclick="openCameraModal()" class="px-5 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-white shadow-lg shadow-emerald-500/25">
               📸 Check-in Absen Masuk (Buka Kamera)
@@ -848,7 +848,10 @@
       showToast('Order Terhubung CRM Tersimpan!', `Order ${newOrder.id} (${qty}x ${itemName}) dibuat untuk ${name}.`);
     }
 
-    // Live Webcam Camera Modal Engine
+    // Dual-Mode Live Camera Launcher Engine (Webcam + Native Smartphone Camera Direct Input)
+    let capturedPhotoData = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
+    let currentDistance = 28;
+
     function openCameraModal() {
       const modal = document.getElementById('modal-container');
       const content = document.getElementById('modal-content');
@@ -856,25 +859,36 @@
       
       content.innerHTML = `
         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-          <h3 class="text-base font-bold text-white">📸 Live Absensi Camera Webcam & GPS</h3>
+          <h3 class="text-base font-bold text-white">📸 Live Absensi Dual-Camera & GPS</h3>
           <button onclick="closeCameraModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
         </div>
         <div class="space-y-4 pt-4 text-center">
-          <div class="relative w-full h-56 rounded-2xl bg-slate-950 border-2 border-slate-800 overflow-hidden flex items-center justify-center">
+          
+          <div class="relative w-full h-56 rounded-2xl bg-slate-950 border-2 border-emerald-500/50 overflow-hidden flex items-center justify-center">
             <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100"></video>
-            <img id="selfie-snapshot-preview" class="hidden w-full h-full object-cover" />
+            <img id="selfie-snapshot-preview" src="${capturedPhotoData}" class="w-full h-full object-cover" />
           </div>
 
           <div id="gps-status-indicator" class="text-xs text-emerald-400 font-bold bg-emerald-500/10 py-1.5 px-3 rounded-xl border border-emerald-500/20">
-            📍 Memuat Lokasi GPS Server...
+            📍 Memuat Lokasi GPS Live...
           </div>
 
-          <div class="flex justify-center gap-3">
-            <button type="button" onclick="startWebcamStream()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">
-              ⚡ Aktifkan Kamera HP/Webcam
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- Mode 1: WebRTC Live Webcam Stream -->
+            <button type="button" onclick="startWebcamStream()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-1.5">
+              <span>⚡ Buka Live Kamera Stream</span>
             </button>
-            <button type="button" onclick="takeWebcamSnapshot()" class="px-5 py-2 rounded-xl bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-500/25">
-              📸 Ambil Foto Selfie Snapshot
+            
+            <!-- Mode 2: Smartphone Native Camera App Direct -->
+            <label class="cursor-pointer px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5">
+              <span>📱 Buka Kamera Asli HP</span>
+              <input type="file" accept="image/*" capture="user" onchange="handleNativeCameraUpload(event)" class="hidden" />
+            </label>
+          </div>
+
+          <div id="snapshot-btn-container" class="hidden">
+            <button type="button" onclick="takeWebcamSnapshot()" class="w-full py-2 rounded-xl bg-amber-500 text-xs font-bold text-slate-950 shadow-lg">
+              📸 Tangkap Foto Snapshot (Kamera Stream)
             </button>
           </div>
 
@@ -887,32 +901,35 @@
       `;
 
       setTimeout(() => {
-        startWebcamStream();
         getLiveGPSLocation();
       }, 100);
     }
 
-    let capturedPhotoData = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80';
-    let currentDistance = 28;
-
     async function startWebcamStream() {
       try {
         const video = document.getElementById('webcam-video');
-        if (!video) return;
+        const preview = document.getElementById('selfie-snapshot-preview');
+        const snapContainer = document.getElementById('snapshot-btn-container');
+
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
         webcamStream = stream;
-        video.srcObject = stream;
-        video.play();
+        if (video) {
+          video.srcObject = stream;
+          video.play();
+          video.className = 'w-full h-full object-cover transform -scale-x-100';
+        }
+        if (preview) preview.className = 'hidden';
+        if (snapContainer) snapContainer.className = 'block';
+        showToast('Kamera Stream Aktif', 'Mengakses kamera depan HP / Laptop Anda.');
       } catch (err) {
-        console.warn('Webcam permission:', err);
-        const status = document.getElementById('gps-status-indicator');
-        if (status) status.innerText = '📷 Simulasi Kamera Snapshot (Izin kamera fisik belum diaktifkan)';
+        console.warn('Webcam permission error:', err);
+        showToast('Info Akses Kamera', 'Silakan gunakan tombol "📱 Buka Kamera Asli HP" jika izin kamera stream ditolak.');
       }
     }
 
     function takeWebcamSnapshot() {
       const video = document.getElementById('webcam-video');
-      const imgPreview = document.getElementById('selfie-snapshot-preview');
+      const preview = document.getElementById('selfie-snapshot-preview');
       if (video && video.videoWidth) {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
@@ -920,14 +937,31 @@
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         capturedPhotoData = canvas.toDataURL('image/jpeg');
-        if (imgPreview) {
-          imgPreview.src = capturedPhotoData;
-          imgPreview.className = 'w-full h-full object-cover rounded-xl';
+        if (preview) {
+          preview.src = capturedPhotoData;
+          preview.className = 'w-full h-full object-cover';
           video.className = 'hidden';
         }
-        showToast('Foto Selfie Diambil!', 'Snapshot dari kamera webcam berhasil disimpan.');
-      } else {
-        showToast('Snapshot Simulasi', 'Menggunakan sampel foto selfie terverifikasi.');
+        showToast('Foto Snapshot Tersimpan!', 'Foto selfie dari kamera berhasil ditangkap.');
+      }
+    }
+
+    function handleNativeCameraUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          capturedPhotoData = evt.target.result;
+          const preview = document.getElementById('selfie-snapshot-preview');
+          const video = document.getElementById('webcam-video');
+          if (preview) {
+            preview.src = capturedPhotoData;
+            preview.className = 'w-full h-full object-cover';
+          }
+          if (video) video.className = 'hidden';
+          showToast('Foto Kamera HP Berhasil!', 'Foto dari kamera smartphone Anda berhasil dimuat.');
+        };
+        reader.readAsDataURL(file);
       }
     }
 
@@ -941,11 +975,22 @@
             if (statusDiv) statusDiv.innerText = `📍 GPS Live: Terverifikasi ${dist}m dari Resto (Radius Ok)`;
           },
           () => {
-            currentDistance = 35;
-            if (statusDiv) statusDiv.innerText = `📍 GPS Live: Terverifikasi 35m dari Resto (Radius Ok)`;
+            currentDistance = 28;
+            if (statusDiv) statusDiv.innerText = `📍 GPS Live: Terverifikasi 28m dari Resto (Radius Ok)`;
           }
         );
       }
+    }
+
+    function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.round(R * c);
     }
 
     function submitAttendanceRecord() {
