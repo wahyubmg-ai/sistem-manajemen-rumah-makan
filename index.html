@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RestoOS — Sistem Manajemen Rumah Makan Production Ready</title>
+  <title>RestoOS — Sistem Manajemen Rumah Makan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>tailwind.config={theme:{extend:{colors:{brand:{50:'#f0fdf4',500:'#22c55e',600:'#16a34a',700:'#15803d'}}}}}</script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    *{-webkit-tap-highlight-color:transparent}
-    body{font-family:'Inter',sans-serif;background:#090d16;color:#f1f5f9}
+    *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#090d16;color:#f1f5f9;margin:0}
     .glass{background:rgba(15,23,42,.75);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 32px rgba(0,0,0,.37)}
     .touch-btn{min-height:44px;min-width:44px}
     @media(max-width:767px){
@@ -20,58 +20,63 @@
     }
     @media(min-width:768px){.mobile-bottom-nav{display:none!important}}
     @media print{body *{visibility:hidden}#printable-area,#printable-area *{visibility:visible}#printable-area{position:absolute;left:0;top:0;width:100%;background:#fff!important;color:#000!important;padding:20px}.no-print{display:none!important}}
+    .inp{width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:10px 14px;font-size:13px;color:#f1f5f9;outline:none}
+    .inp:focus{border-color:#22c55e}
+    .btn-p{padding:10px 18px;border-radius:12px;background:#22c55e;color:#fff;font-weight:700;font-size:12px;border:none;cursor:pointer;min-height:44px}
+    .btn-p:hover{background:#16a34a}
+    .btn-s{padding:10px 18px;border-radius:12px;background:#1e293b;color:#94a3b8;font-weight:700;font-size:12px;border:none;cursor:pointer;min-height:44px}
   </style>
 </head>
 <body class="min-h-screen selection:bg-emerald-500 selection:text-white">
 
-<!-- LOGIN SCREEN -->
+<!-- ========== LOGIN SCREEN ========== -->
 <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6">
-  <div class="w-full max-w-sm space-y-6 text-center">
+  <div class="w-full max-w-sm space-y-5 text-center">
     <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-3xl shadow-2xl shadow-emerald-500/30">🍱</div>
-    <h1 class="text-2xl font-black text-white">RestoOS BI Platform</h1>
-    <p class="text-xs text-slate-400">Sistem Manajemen Rumah Makan & Business Intelligence</p>
+    <h1 class="text-2xl font-black text-white">RestoOS</h1>
+    <p class="text-xs text-slate-400">Sistem Manajemen Rumah Makan & BI</p>
     <form onsubmit="handleLogin(event)" class="space-y-3 text-left">
       <div>
-        <label class="text-[11px] font-bold text-slate-400 block mb-1">Nama Staf / Email</label>
-        <input type="text" id="login-name" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 touch-btn">
+        <label class="text-[11px] font-bold text-slate-400 block mb-1">Username / Nama</label>
+        <input type="text" id="login-user" required placeholder="Contoh: owner" class="inp touch-btn" autocomplete="username">
       </div>
       <div>
-        <label class="text-[11px] font-bold text-slate-400 block mb-1">Role / Jabatan</label>
-        <select id="login-role" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 touch-btn font-bold">
-          <option value="owner">👑 Owner / Pemilik</option>
-          <option value="manager">🛡️ Manajer / Supervisor</option>
-          <option value="admin">📝 Admin Input</option>
-          <option value="karyawan">👤 Karyawan (Absensi Saja)</option>
-        </select>
+        <label class="text-[11px] font-bold text-slate-400 block mb-1">Password</label>
+        <input type="password" id="login-pass" required placeholder="Masukkan password" class="inp touch-btn" autocomplete="current-password">
       </div>
-      <button type="submit" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-xl shadow-emerald-500/30 touch-btn">Masuk ke Sistem</button>
+      <div id="login-err" class="hidden p-2 rounded-xl bg-rose-950 border border-rose-500/40 text-[11px] text-rose-300 font-bold text-center"></div>
+      <button type="submit" class="w-full btn-p text-sm shadow-xl shadow-emerald-500/30">🔐 Masuk ke Sistem</button>
     </form>
-    <p class="text-[10px] text-slate-600">v2.0 Production Ready — Data tersimpan permanen di browser</p>
+    <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-left space-y-1">
+      <div class="text-[10px] font-bold text-slate-500">Akun Default:</div>
+      <div class="text-[11px] text-slate-400">👑 <b class="text-emerald-400">owner</b> / <b>1234</b> — Semua akses</div>
+      <div class="text-[11px] text-slate-400">🛡️ <b class="text-cyan-400">manager</b> / <b>1234</b> — Tanpa Setting</div>
+      <div class="text-[11px] text-slate-400">📝 <b class="text-amber-400">admin</b> / <b>1234</b> — Order & Invoice</div>
+      <div class="text-[11px] text-slate-400">👤 <b class="text-slate-300">karyawan1</b> / <b>1234</b> — Absensi saja</div>
+    </div>
+    <p class="text-[10px] text-slate-600">v3.0 — Data tersimpan permanen di browser</p>
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ========== HEADER ========== -->
 <header id="app-header" class="hidden sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3">
   <div class="flex items-center gap-3">
     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-lg shadow-lg shadow-emerald-500/20">🍱</div>
     <div>
       <span class="font-extrabold text-sm text-white">RestoOS</span>
-      <span class="text-[9px] font-bold ml-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PRODUCTION</span>
+      <span class="text-[9px] font-bold ml-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v3.0</span>
       <div class="text-[10px] text-slate-500" id="logged-in-as"></div>
     </div>
   </div>
   <button onclick="handleLogout()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-400 hover:text-rose-400 touch-btn">Logout</button>
 </header>
 
-<!-- MAIN LAYOUT -->
-<div class="flex flex-col md:flex-row min-h-[calc(100vh-52px)]">
-  <!-- Desktop Sidebar -->
-  <aside class="desktop-sidebar w-60 bg-slate-950/80 border-r border-slate-800 p-3 space-y-1.5 shrink-0">
+<!-- ========== MAIN LAYOUT ========== -->
+<div id="app-layout" class="hidden flex-col md:flex-row min-h-[calc(100vh-52px)]">
+  <aside class="desktop-sidebar w-56 bg-slate-950/80 border-r border-slate-800 p-3 space-y-1 shrink-0">
     <div class="text-[9px] font-bold uppercase tracking-wider text-slate-600 px-3 mb-2">Modul</div>
     <div id="sidebar-nav"></div>
   </aside>
-
-  <!-- Main Content -->
   <main id="main-content" class="main-area flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full overflow-x-hidden"></main>
 </div>
 
@@ -79,24 +84,36 @@
 <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 py-1.5 flex justify-around items-center" id="mobile-nav"></nav>
 
 <!-- Toast -->
-<div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:right-6 z-50 pointer-events-none"></div>
+<div id="toast-container" class="fixed bottom-20 md:bottom-6 right-4 left-4 md:left-auto md:right-6 md:w-80 z-50 pointer-events-none"></div>
 
 <!-- Modal -->
-<div id="modal-container" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/80 backdrop-blur-md">
-  <div id="modal-content" class="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl max-h-[90vh] overflow-y-auto p-5"></div>
+<div id="modal-overlay" class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center bg-slate-950/80 backdrop-blur-md" onclick="if(event.target===this)closeModal()">
+  <div id="modal-content" class="relative w-full max-w-lg md:rounded-3xl rounded-t-3xl bg-slate-900 border border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto p-5"></div>
 </div>
 
 <script>
-// ====== CONFIGURATION ======
-const DEFAULTS = { restoName:'Resto Syukuran Nusantara', restoAddress:'Jl. Senopati No. 88, Jakarta', bankInfo:'BCA 123-456-7890 a.n. Resto Syukuran', restoLat:-6.2088, restoLon:106.8456, geoRadius:100 };
-let webcamStream = null, searchQ = '', filterSt = 'All';
+// ===================== CONFIGURATION =====================
+const DEFAULTS = {restoName:'Resto Syukuran Nusantara',restoAddress:'Jl. Senopati No. 88, Jakarta',bankInfo:'BCA 123-456-7890 a.n. Resto Syukuran',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
+let webcamStream=null, searchQ='', filterSt='All';
 
-// ====== STATE with localStorage persistence ======
-function loadState() {
+// ===================== STAFF DATABASE =====================
+function loadStaff(){
+  return JSON.parse(localStorage.getItem('ro_staff')) || [
+    {id:'s1',username:'owner',password:'1234',fullName:'Pemilik Resto',role:'owner',phone:'081200001111',active:true},
+    {id:'s2',username:'manager',password:'1234',fullName:'Supervisor Outlet',role:'manager',phone:'081200002222',active:true},
+    {id:'s3',username:'admin',password:'1234',fullName:'Admin Kasir',role:'admin',phone:'081200003333',active:true},
+    {id:'s4',username:'karyawan1',password:'1234',fullName:'Budi Santoso',role:'karyawan',phone:'081200004444',active:true},
+    {id:'s5',username:'karyawan2',password:'1234',fullName:'Siti Aminah',role:'karyawan',phone:'081200005555',active:true}
+  ];
+}
+function saveStaff(staff){ localStorage.setItem('ro_staff',JSON.stringify(staff)); }
+
+// ===================== STATE =====================
+function loadState(){
   return {
-    loggedIn: JSON.parse(localStorage.getItem('ro_logged')) || null,
-    config: JSON.parse(localStorage.getItem('ro_config')) || {...DEFAULTS},
-    menu: JSON.parse(localStorage.getItem('ro_menu')) || [
+    loggedIn: JSON.parse(localStorage.getItem('ro_logged'))||null,
+    config: JSON.parse(localStorage.getItem('ro_config'))||{...DEFAULTS},
+    menu: JSON.parse(localStorage.getItem('ro_menu'))||[
       {id:'m1',name:'Nasi Tumpeng Mini Komplit',price:45000,cat:'Catering'},
       {id:'m2',name:'Ayam Goreng Kremes + Nasi',price:32000,cat:'Main'},
       {id:'m3',name:'Bebek Bakar Madu Spesial',price:48000,cat:'Main'},
@@ -104,35 +121,33 @@ function loadState() {
       {id:'m5',name:'Es Jeruk Peras Alami',price:10000,cat:'Beverage'},
       {id:'m6',name:'Paket Prasmanan 50 Porsi',price:2500000,cat:'Catering'}
     ],
-    customers: JSON.parse(localStorage.getItem('ro_cust')) || [
+    customers: JSON.parse(localStorage.getItem('ro_cust'))||[
       {id:'c1',name:'Bpk. Hendra Wijaya',phone:'081234567890',address:'Jl. Sudirman No. 45, Jakarta',tag:'VIP',ltv:12500000,orders:8},
       {id:'c2',name:'Ibu Ratna Pertiwi',phone:'081987654321',address:'Wisma Asri Lt. 4, Kebayoran',tag:'Catering Regular',ltv:8400000,orders:4},
       {id:'c3',name:'PT Sinergi Mandiri',phone:'085678901234',address:'Pulogadung Blok C-12',tag:'Corporate',ltv:24500000,orders:6},
       {id:'c4',name:'Sdri. Maya Indah',phone:'087811223344',address:'Apt Rasuna Tower 3',tag:'Baru',ltv:350000,orders:1}
     ],
-    orders: JSON.parse(localStorage.getItem('ro_ord')) || [
-      {id:'ORD-001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',type:'Catering',status:'Diproses',date:'2026-08-05',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000,notes:'Pedas sedang'},{name:'Es Jeruk Peras',qty:25,price:10000,notes:'Es dipisah'}],subtotal:1375000,tax:137500,ship:50000,total:1562500},
-      {id:'ORD-002',custId:'c4',custName:'Sdri. Maya Indah',custPhone:'087811223344',custAddr:'Apt Rasuna Tower 3',type:'Pre-order',status:'Selesai',date:'2026-08-05',items:[{name:'Ayam Goreng Kremes',qty:10,price:32000,notes:''},{name:'Es Teh Manis',qty:10,price:7000,notes:''}],subtotal:390000,tax:39000,ship:0,total:429000}
+    orders: JSON.parse(localStorage.getItem('ro_ord'))||[
+      {id:'ORD-2026-0001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',type:'Catering',status:'Diproses',date:'2026-08-05',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000,notes:'Pedas sedang'},{name:'Es Jeruk Peras',qty:25,price:10000,notes:'Es dipisah'}],subtotal:1375000,tax:137500,ship:50000,total:1562500},
+      {id:'ORD-2026-0002',custId:'c4',custName:'Sdri. Maya Indah',custPhone:'087811223344',custAddr:'Apt Rasuna Tower 3',type:'Pre-order',status:'Selesai',date:'2026-08-05',items:[{name:'Ayam Goreng Kremes',qty:10,price:32000,notes:''},{name:'Es Teh Manis',qty:10,price:7000,notes:''}],subtotal:390000,tax:39000,ship:0,total:429000}
     ],
-    invoices: JSON.parse(localStorage.getItem('ro_inv')) || [
-      {id:'INV-001',orderId:'ORD-001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',issueDate:'2026-08-05',dueDate:'2026-08-08',total:1562500,paid:500000,remaining:1062500,status:'Sebagian Dibayar',method:'Transfer BCA',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000},{name:'Es Jeruk Peras',qty:25,price:10000}],tax:137500,ship:50000},
-      {id:'INV-004',orderId:'ORD-008',custId:'c3',custName:'PT Sinergi Mandiri',custPhone:'085678901234',custAddr:'Pulogadung',issueDate:'2026-08-01',dueDate:'2026-08-04',total:5650000,paid:0,remaining:5650000,status:'Jatuh Tempo',method:'Transfer Mandiri',items:[{name:'Paket Prasmanan 50 Porsi',qty:2,price:2500000}],tax:500000,ship:150000}
+    invoices: JSON.parse(localStorage.getItem('ro_inv'))||[
+      {id:'INV-2026-0001',orderId:'ORD-2026-0001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',issueDate:'2026-08-05',dueDate:'2026-08-08',total:1562500,paid:500000,remaining:1062500,status:'Sebagian Dibayar',method:'Transfer BCA',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000},{name:'Es Jeruk Peras',qty:25,price:10000}],tax:137500,ship:50000},
+      {id:'INV-2026-0002',orderId:'ORD-2026-0003',custId:'c3',custName:'PT Sinergi Mandiri',custPhone:'085678901234',custAddr:'Pulogadung',issueDate:'2026-08-01',dueDate:'2026-08-04',total:5650000,paid:0,remaining:5650000,status:'Jatuh Tempo',method:'Transfer Mandiri',items:[{name:'Paket Prasmanan 50 Porsi',qty:2,price:2500000}],tax:500000,ship:150000}
     ],
-    expenses: JSON.parse(localStorage.getItem('ro_exp')) || [
-      {id:'EXP-1',date:'2026-08-05',cat:'Bahan Baku',desc:'Belanja Pasar: Ayam & Daging',amount:1450000},
-      {id:'EXP-2',date:'2026-08-04',cat:'Operasional',desc:'Gas LPG 12kg (3 tabung)',amount:630000}
+    expenses: JSON.parse(localStorage.getItem('ro_exp'))||[
+      {id:'EXP-0001',date:'2026-08-05',cat:'Bahan Baku',desc:'Belanja Pasar: Ayam & Daging',amount:1450000},
+      {id:'EXP-0002',date:'2026-08-04',cat:'Operasional',desc:'Gas LPG 12kg (3 tabung)',amount:630000}
     ],
-    attendance: JSON.parse(localStorage.getItem('ro_att')) || [
-      {id:'a1',name:'Budi Santoso',role:'Koki Utama',date:'2026-08-05',time:'07:45',status:'Hadir',photo:'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=200',dist:24},
-      {id:'a2',name:'Siti Aminah',role:'Kasir',date:'2026-08-05',time:'08:18',status:'Terlambat',photo:'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200',dist:65}
-    ],
-    esbSales: JSON.parse(localStorage.getItem('ro_esb')) || 3250000,
-    tab: 'dashboard'
+    attendance: JSON.parse(localStorage.getItem('ro_att'))||[],
+    esbSales: JSON.parse(localStorage.getItem('ro_esb'))||3250000,
+    counters: JSON.parse(localStorage.getItem('ro_ctr'))||{ord:2,inv:2,exp:2},
+    tab:'dashboard'
   };
 }
 let S = loadState();
 
-function save() {
+function save(){
   localStorage.setItem('ro_config',JSON.stringify(S.config));
   localStorage.setItem('ro_menu',JSON.stringify(S.menu));
   localStorage.setItem('ro_cust',JSON.stringify(S.customers));
@@ -140,350 +155,491 @@ function save() {
   localStorage.setItem('ro_inv',JSON.stringify(S.invoices));
   localStorage.setItem('ro_exp',JSON.stringify(S.expenses));
   localStorage.setItem('ro_att',JSON.stringify(S.attendance));
-  localStorage.setItem('ro_esb',S.esbSales);
+  localStorage.setItem('ro_esb',JSON.stringify(S.esbSales));
   localStorage.setItem('ro_logged',JSON.stringify(S.loggedIn));
+  localStorage.setItem('ro_ctr',JSON.stringify(S.counters));
 }
 
-// ====== HELPERS ======
-const rp = n => n ? new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n) : 'Rp 0';
-const waLink = (ph,txt) => { let p=ph.replace(/\D/g,''); if(p.startsWith('0'))p='62'+p.slice(1); return `https://wa.me/${p}?text=${encodeURIComponent(txt)}`; };
-const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const today = () => new Date().toISOString().slice(0,10);
-const daysDiff = (d) => Math.round((new Date(d)-new Date(today()))/(864e5));
+// ===================== HELPERS =====================
+const rp=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
+const waLink=(ph,txt)=>{let p=ph.replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);return`https://wa.me/${p}?text=${encodeURIComponent(txt)}`};
+const today=()=>new Date().toISOString().slice(0,10);
+const daysDiff=d=>Math.round((new Date(d)-new Date(today()))/864e5);
+const yr=()=>new Date().getFullYear();
 
-function toast(t,m) {
-  const c=document.getElementById('toast-container'), d=document.createElement('div');
-  d.className='p-3 rounded-2xl bg-slate-900 border border-emerald-500 text-emerald-300 text-xs font-bold shadow-2xl mb-2 pointer-events-auto';
+// Sequential ID generator: ORD-2026-0003, INV-2026-0004, etc.
+function nextId(prefix){
+  const key = prefix.toLowerCase().replace('-','');
+  S.counters[key] = (S.counters[key]||0)+1;
+  save();
+  return `${prefix}-${yr()}-${String(S.counters[key]).padStart(4,'0')}`;
+}
+
+function toast(t,m){
+  const c=document.getElementById('toast-container'),d=document.createElement('div');
+  d.className='p-3 rounded-2xl bg-slate-900 border border-emerald-500 text-emerald-300 text-xs font-bold shadow-2xl mb-2 pointer-events-auto animate-pulse';
   d.innerHTML=`<div>${t}</div><div class="text-slate-400 font-normal mt-0.5">${m}</div>`;
-  c.appendChild(d); setTimeout(()=>d.remove(),3500);
+  c.appendChild(d);setTimeout(()=>d.remove(),4000);
 }
 
-function haversine(lat1,lon1,lat2,lon2) {
+function haversine(lat1,lon1,lat2,lon2){
   const R=6371e3,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
   return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
 }
 
-// ====== REMINDER ENGINE ======
-function getReminders() {
-  const r = [];
-  S.invoices.forEach(inv => {
-    if(inv.remaining <= 0) return;
-    const dd = daysDiff(inv.dueDate);
-    if(dd <= 3 && dd > 1) r.push({...inv, urgency:'reminder', label:`H-${dd} Jatuh Tempo`, color:'amber'});
-    else if(dd === 1) r.push({...inv, urgency:'warning', label:'H-1 Besok Jatuh Tempo!', color:'orange'});
-    else if(dd === 0) r.push({...inv, urgency:'critical', label:'HARI INI Jatuh Tempo!', color:'rose'});
-    else if(dd < 0) r.push({...inv, urgency:'overdue', label:`OVERDUE H+${Math.abs(dd)}`, color:'rose'});
+// ===================== REMINDER ENGINE =====================
+function getReminders(){
+  const r=[];
+  S.invoices.forEach(inv=>{
+    if(inv.remaining<=0)return;
+    const dd=daysDiff(inv.dueDate);
+    if(dd<=3&&dd>1)r.push({...inv,label:`H-${dd} Jatuh Tempo`,color:'amber'});
+    else if(dd===1)r.push({...inv,label:'H-1 Besok Jatuh Tempo!',color:'orange'});
+    else if(dd===0)r.push({...inv,label:'HARI INI Jatuh Tempo!',color:'rose'});
+    else if(dd<0)r.push({...inv,label:`OVERDUE ${Math.abs(dd)} hari`,color:'rose'});
   });
-  return r.sort((a,b)=> daysDiff(a.dueDate) - daysDiff(b.dueDate));
+  return r.sort((a,b)=>daysDiff(a.dueDate)-daysDiff(b.dueDate));
 }
 
-// ====== RICH WA INVOICE TEMPLATE ======
-function buildWaInvoiceMsg(inv) {
-  let items = inv.items.map(i=>`• ${i.qty}x ${i.name} = ${rp(i.qty*i.price)}`).join('\n');
-  return `Halo ${inv.custName},\n\nBerikut tagihan invoice *${inv.id}*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-inv.ship)}\nPajak 10%: ${rp(inv.tax)}\n${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa tagihan: '+rp(inv.remaining)+'*\n':''}\nTransfer ke: ${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
+// ===================== WA INVOICE MSG =====================
+function buildWaMsg(inv){
+  const items=inv.items.map(i=>`• ${i.qty}x ${i.name} = ${rp(i.qty*i.price)}`).join('\n');
+  return `Halo ${inv.custName},\n\nBerikut tagihan invoice *${inv.id}*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\nPajak 10%: ${rp(inv.tax)}\n${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa: '+rp(inv.remaining)+'*\n':''}\nTransfer ke: ${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
 }
 
-// ====== PAYMENT SYNC (Single Source of Truth) ======
-function recordPayment(invId, amount) {
-  const inv = S.invoices.find(i=>i.id===invId);
-  if(!inv) return;
-  inv.paid += amount;
-  inv.remaining = Math.max(0, inv.total - inv.paid);
-  inv.status = inv.remaining <= 0 ? 'Lunas' : 'Sebagian Dibayar';
-  // Sync to order
-  const ord = S.orders.find(o=>o.id===inv.orderId);
-  if(ord && inv.remaining<=0) ord.status = 'Selesai';
-  // Sync to CRM LTV
-  const cust = S.customers.find(c=>c.id===inv.custId);
-  if(cust) cust.ltv += amount;
-  save();
-  toast('Pembayaran Tercatat!', `${rp(amount)} untuk ${inv.id} — ${inv.status}`);
+// ===================== PAYMENT SYNC =====================
+function recordPayment(invId,amount){
+  const inv=S.invoices.find(i=>i.id===invId);if(!inv||amount<=0)return;
+  inv.paid+=amount;
+  inv.remaining=Math.max(0,inv.total-inv.paid);
+  inv.status=inv.remaining<=0?'Lunas':'Sebagian Dibayar';
+  // Sync order
+  const ord=S.orders.find(o=>o.id===inv.orderId);
+  if(ord&&inv.remaining<=0)ord.status='Selesai';
+  // Sync CRM
+  const cust=S.customers.find(c=>c.id===inv.custId);
+  if(cust)cust.ltv+=amount;
+  save();toast('💰 Pembayaran Tercatat',`${rp(amount)} untuk ${inv.id} → ${inv.status}`);
 }
 
-// ====== AUTH ======
-function handleLogin(e) {
+// ===================== AUTH WITH PASSWORD =====================
+function handleLogin(e){
   e.preventDefault();
-  const name = document.getElementById('login-name').value;
-  const role = document.getElementById('login-role').value;
-  S.loggedIn = {name, role, time: new Date().toLocaleString('id-ID')};
-  save();
-  showApp();
-}
-function handleLogout() {
-  S.loggedIn = null;
-  localStorage.removeItem('ro_logged');
-  document.getElementById('login-screen').className = 'fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6';
-  document.getElementById('app-header').className = 'hidden';
-  document.querySelector('.flex.flex-col.md\\:flex-row').className = 'hidden flex-col md:flex-row min-h-[calc(100vh-52px)]';
-  document.getElementById('mobile-nav').className = 'mobile-bottom-nav hidden';
+  const u=document.getElementById('login-user').value.trim().toLowerCase();
+  const p=document.getElementById('login-pass').value;
+  const staff=loadStaff();
+  const found=staff.find(s=>s.username.toLowerCase()===u&&s.password===p&&s.active);
+  const errBox=document.getElementById('login-err');
+  if(!found){
+    errBox.className='p-2 rounded-xl bg-rose-950 border border-rose-500/40 text-[11px] text-rose-300 font-bold text-center';
+    errBox.textContent='❌ Username atau password salah!';
+    return;
+  }
+  S.loggedIn={id:found.id,username:found.username,name:found.fullName,role:found.role,time:new Date().toLocaleString('id-ID')};
+  save();showApp();
 }
 
-function showApp() {
-  document.getElementById('login-screen').className = 'hidden';
-  document.getElementById('app-header').className = 'sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3';
-  document.querySelector('.flex.flex-col.md\\:flex-row').className = 'flex flex-col md:flex-row min-h-[calc(100vh-52px)]';
-  document.getElementById('logged-in-as').textContent = `${S.loggedIn.name} (${S.loggedIn.role})`;
+function handleLogout(){
+  if(webcamStream){webcamStream.getTracks().forEach(t=>t.stop());webcamStream=null;}
+  S.loggedIn=null;localStorage.removeItem('ro_logged');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app-header').classList.add('hidden');
+  document.getElementById('app-layout').classList.add('hidden');
+  document.getElementById('app-layout').classList.remove('flex');
+}
 
-  const isKaryawan = S.loggedIn.role === 'karyawan';
-  const tabs = isKaryawan
-    ? [{id:'attendance',icon:'📸',label:'Absensi'}]
-    : [
-      {id:'dashboard',icon:'📊',label:'Dashboard BI'},
-      {id:'orders',icon:'🛒',label:'Order Catering'},
+// ===================== SHOW APP =====================
+function showApp(){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-header').classList.remove('hidden');
+  document.getElementById('app-header').style.display='flex';
+  document.getElementById('app-layout').classList.remove('hidden');
+  document.getElementById('app-layout').classList.add('flex');
+  document.getElementById('logged-in-as').textContent=`${S.loggedIn.name} (${S.loggedIn.role})`;
+
+  const role=S.loggedIn.role;
+  let tabs=[];
+  if(role==='karyawan'){
+    tabs=[{id:'attendance',icon:'📸',label:'Absensi'}];
+  } else if(role==='admin'){
+    tabs=[
+      {id:'dashboard',icon:'📊',label:'Dashboard'},
+      {id:'orders',icon:'🛒',label:'Order'},
+      {id:'invoices',icon:'📄',label:'Invoice'},
+      {id:'crm',icon:'👥',label:'CRM'},
+      {id:'attendance',icon:'📸',label:'Absensi'}
+    ];
+  } else {
+    tabs=[
+      {id:'dashboard',icon:'📊',label:'Dashboard'},
+      {id:'orders',icon:'🛒',label:'Order'},
       {id:'invoices',icon:'📄',label:'Invoice'},
       {id:'finance',icon:'💰',label:'Keuangan'},
-      {id:'crm',icon:'🔔',label:'CRM'},
+      {id:'crm',icon:'👥',label:'CRM'},
       {id:'attendance',icon:'📸',label:'Absensi'},
       {id:'menu',icon:'🍲',label:'Menu'},
+      {id:'staff',icon:'👤',label:'Pegawai'},
       {id:'settings',icon:'⚙️',label:'Setting'}
     ];
+    if(role==='manager'){tabs=tabs.filter(t=>t.id!=='settings')}
+  }
 
   // Desktop sidebar
-  document.getElementById('sidebar-nav').innerHTML = tabs.map(t=>`
+  document.getElementById('sidebar-nav').innerHTML=tabs.map(t=>`
     <button onclick="go('${t.id}')" id="sn-${t.id}" class="sn w-full text-left p-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900 touch-btn">${t.icon} ${t.label}</button>
   `).join('');
 
-  // Mobile bottom nav
-  document.getElementById('mobile-nav').innerHTML = tabs.slice(0, 5).map(t=>`
-    <button onclick="go('${t.id}')" id="mn-${t.id}" class="mn flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-slate-500 touch-btn">
-      <span class="text-lg">${t.icon}</span><span class="text-[9px] font-bold">${t.label.split(' ')[0]}</span>
+  // Mobile bottom nav (max 5 + more)
+  const mainTabs=tabs.slice(0,5);
+  const moreTabs=tabs.slice(5);
+  document.getElementById('mobile-nav').innerHTML=mainTabs.map(t=>`
+    <button onclick="go('${t.id}')" id="mn-${t.id}" class="mn flex flex-col items-center gap-0.5 px-1.5 py-1 rounded-xl text-slate-500 touch-btn">
+      <span class="text-base">${t.icon}</span><span class="text-[8px] font-bold">${t.label}</span>
     </button>
-  `).join('') + (tabs.length > 5 ? `
-    <button onclick="document.getElementById('more-menu').classList.toggle('hidden')" class="mn flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl text-slate-500 touch-btn relative">
-      <span class="text-lg">☰</span><span class="text-[9px] font-bold">Lagi</span>
-      <div id="more-menu" class="hidden absolute bottom-full mb-2 right-0 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl min-w-[140px]">
-        ${tabs.slice(5).map(t=>`<button onclick="go('${t.id}');document.getElementById('more-menu').classList.add('hidden')" class="w-full text-left p-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 touch-btn">${t.icon} ${t.label}</button>`).join('')}
+  `).join('')+(moreTabs.length?`
+    <div class="relative">
+      <button onclick="document.getElementById('more-dd').classList.toggle('hidden')" class="mn flex flex-col items-center gap-0.5 px-1.5 py-1 rounded-xl text-slate-500 touch-btn">
+        <span class="text-base">☰</span><span class="text-[8px] font-bold">Lagi</span>
+      </button>
+      <div id="more-dd" class="hidden absolute bottom-full mb-2 right-0 bg-slate-900 border border-slate-800 rounded-2xl p-2 shadow-2xl min-w-[130px]">
+        ${moreTabs.map(t=>`<button onclick="go('${t.id}');document.getElementById('more-dd').classList.add('hidden')" class="w-full text-left p-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 touch-btn">${t.icon} ${t.label}</button>`).join('')}
       </div>
-    </button>
-  ` : '');
+    </div>
+  `:'');
 
-  if(isKaryawan) S.tab = 'attendance';
-  go(S.tab || 'dashboard');
+  if(role==='karyawan')S.tab='attendance';
+  go(S.tab||'dashboard');
 }
 
-function go(tab) {
-  S.tab = tab;
-  document.querySelectorAll('.sn').forEach(b=>b.className='sn w-full text-left p-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900 touch-btn');
+function go(tab){
+  S.tab=tab;
+  document.querySelectorAll('.sn').forEach(b=>{b.className='sn w-full text-left p-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:bg-slate-900 touch-btn'});
   document.querySelectorAll('.mn').forEach(b=>{b.classList.remove('text-emerald-400');b.classList.add('text-slate-500')});
   const sn=document.getElementById(`sn-${tab}`);
-  if(sn) sn.className='sn w-full text-left p-2.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 touch-btn';
+  if(sn)sn.className='sn w-full text-left p-2.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 touch-btn';
   const mn=document.getElementById(`mn-${tab}`);
   if(mn){mn.classList.remove('text-slate-500');mn.classList.add('text-emerald-400')}
   render();
 }
 
-function render() {
-  const c = document.getElementById('main-content');
-  if(S.tab==='dashboard') vDashboard(c);
-  else if(S.tab==='orders') vOrders(c);
-  else if(S.tab==='invoices') vInvoices(c);
-  else if(S.tab==='finance') vFinance(c);
-  else if(S.tab==='crm') vCRM(c);
-  else if(S.tab==='attendance') vAttendance(c);
-  else if(S.tab==='menu') vMenu(c);
-  else if(S.tab==='settings') vSettings(c);
+function render(){
+  const c=document.getElementById('main-content');
+  const views={dashboard:vDashboard,orders:vOrders,invoices:vInvoices,finance:vFinance,crm:vCRM,attendance:vAttendance,menu:vMenu,staff:vStaff,settings:vSettings};
+  if(views[S.tab])views[S.tab](c);
 }
 
-// ====== VIEWS ======
-function vDashboard(c) {
-  const reminders = getReminders();
-  const activeOrds = S.orders.filter(o=>o.status!=='Selesai').length;
-  const unpaid = S.invoices.reduce((s,i)=>s+i.remaining,0);
+// ===================== MODAL =====================
+function openModal(html){document.getElementById('modal-overlay').classList.remove('hidden');document.getElementById('modal-content').innerHTML=html;}
+function closeModal(){if(webcamStream){webcamStream.getTracks().forEach(t=>t.stop());webcamStream=null;}document.getElementById('modal-overlay').classList.add('hidden');}
 
-  c.innerHTML = `
+// ===================== VIEW: DASHBOARD =====================
+function vDashboard(c){
+  const reminders=getReminders();
+  const activeOrds=S.orders.filter(o=>o.status!=='Selesai'&&o.status!=='Dibatalkan').length;
+  const totalOrds=S.orders.length;
+  const unpaid=S.invoices.reduce((s,i)=>s+i.remaining,0);
+  const todayAtt=S.attendance.filter(a=>a.date===today()).length;
+
+  c.innerHTML=`
     <div class="space-y-5">
-      ${reminders.length ? `
-      <div class="p-4 rounded-2xl bg-rose-950/50 border border-rose-500/40 space-y-2">
-        <h3 class="text-sm font-bold text-rose-300">🔔 ${reminders.length} Invoice Perlu Penagihan Segera!</h3>
+      <h2 class="text-lg font-black text-white">📊 Dashboard Business Intelligence</h2>
+
+      ${reminders.length?`
+      <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 space-y-2">
+        <h3 class="text-sm font-bold text-rose-300">🔔 ${reminders.length} Invoice Perlu Penagihan!</h3>
         ${reminders.map(r=>`
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-900/80 border border-${r.color}-500/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
             <div>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-${r.color}-500/20 text-${r.color}-400">${r.label}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400">${r.label}</span>
               <span class="text-xs font-bold text-white ml-2">${r.id}</span>
               <span class="text-xs text-slate-400 ml-1">— ${r.custName}</span>
-              <div class="text-xs font-extrabold text-${r.color}-400 mt-0.5">Sisa: ${rp(r.remaining)}</div>
+              <div class="text-xs font-extrabold text-rose-400 mt-0.5">Sisa: ${rp(r.remaining)}</div>
             </div>
-            <a href="${waLink(r.custPhone,buildWaInvoiceMsg(r))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-bold text-center touch-btn shadow-lg">Tagih via WA</a>
+            <a href="${waLink(r.custPhone,buildWaMsg(r))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-bold text-center touch-btn shadow-lg">📱 Tagih WA</a>
           </div>
         `).join('')}
-      </div>` : ''}
+      </div>`:''}
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Omset ESB POS</div><div class="text-xl font-black text-white mt-1">${rp(S.esbSales)}</div></div>
-        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Order Aktif</div><div class="text-xl font-black text-cyan-300 mt-1">${activeOrds}</div></div>
-        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Piutang</div><div class="text-xl font-black text-rose-300 mt-1">${rp(unpaid)}</div></div>
-        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Staf Hadir</div><div class="text-xl font-black text-white mt-1">${S.attendance.filter(a=>a.date===today()).length}</div></div>
+        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Total / Aktif Order</div><div class="text-xl font-black text-cyan-300 mt-1">${totalOrds} / <span class="text-amber-300">${activeOrds}</span></div></div>
+        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Piutang Belum Bayar</div><div class="text-xl font-black text-rose-300 mt-1">${rp(unpaid)}</div></div>
+        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Staf Hadir Hari Ini</div><div class="text-xl font-black text-emerald-300 mt-1">${todayAtt}</div></div>
       </div>
 
-      <div class="p-5 rounded-2xl glass">
-        <h3 class="text-sm font-bold text-white mb-3">Tren Penjualan Mingguan</h3>
-        <canvas id="chart1" class="max-h-52"></canvas>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="p-5 rounded-2xl glass">
+          <h3 class="text-sm font-bold text-white mb-3">📈 Tren Penjualan Mingguan</h3>
+          <canvas id="chart1" class="max-h-48"></canvas>
+        </div>
+        <div class="p-5 rounded-2xl glass">
+          <h3 class="text-sm font-bold text-white mb-3">🥇 Top 5 Pelanggan (LTV)</h3>
+          <div class="space-y-2">
+            ${[...S.customers].sort((a,b)=>b.ltv-a.ltv).slice(0,5).map((cu,i)=>`
+              <div class="flex items-center justify-between p-2 rounded-xl ${i===0?'bg-emerald-950/30 border border-emerald-500/20':'bg-slate-950'}">
+                <div class="flex items-center gap-2"><span class="text-xs font-black ${i===0?'text-emerald-400':'text-slate-400'}">#${i+1}</span><span class="text-xs font-bold text-white">${cu.name}</span></div>
+                <span class="text-xs font-bold text-emerald-400">${rp(cu.ltv)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
       </div>
     </div>`;
-  setTimeout(()=>{const x=document.getElementById('chart1');if(x)new Chart(x,{type:'bar',data:{labels:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],datasets:[{label:'Omset (Rp)',data:[2400000,3100000,2800000,4200000,5800000,8400000,7200000],backgroundColor:'#10b981',borderRadius:8}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#64748b'}},y:{ticks:{color:'#64748b'}}}}})},100);
+
+  setTimeout(()=>{
+    const x=document.getElementById('chart1');
+    if(x)new Chart(x,{type:'bar',data:{labels:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],datasets:[{label:'Omset (Rp)',data:[2400000,3100000,2800000,4200000,5800000,8400000,7200000],backgroundColor:'#10b981',borderRadius:8}]},options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}}},y:{ticks:{color:'#64748b',font:{size:10}}}}}});
+  },100);
 }
 
-function vOrders(c) {
-  const list = S.orders.filter(o=>(o.id+o.custName).toLowerCase().includes(searchQ.toLowerCase())&&(filterSt==='All'||o.status===filterSt));
-  c.innerHTML = `
+// ===================== VIEW: ORDERS =====================
+function vOrders(c){
+  const list=S.orders.filter(o=>(o.id+o.custName+o.custPhone).toLowerCase().includes(searchQ.toLowerCase())&&(filterSt==='All'||o.status===filterSt));
+  c.innerHTML=`
     <div class="space-y-4">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 class="text-lg font-black text-white">Catering & Special Orders</h2>
-        <button onclick="mOrder()" class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold touch-btn shadow-lg">+ Order Baru</button>
+        <h2 class="text-lg font-black text-white">🛒 Order Catering & Pre-order</h2>
+        <button onclick="mOrder()" class="btn-p touch-btn shadow-lg">+ Order Baru</button>
       </div>
       <div class="flex flex-wrap gap-2">
-        <input type="text" placeholder="Cari order..." value="${searchQ}" oninput="searchQ=this.value;render()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 flex-1 min-w-[150px] touch-btn">
-        <select onchange="filterSt=this.value;render()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 font-bold touch-btn">
-          <option value="All" ${filterSt==='All'?'selected':''}>Semua</option>
+        <input type="text" placeholder="🔍 Cari nomor/nama..." value="${searchQ}" oninput="searchQ=this.value;render()" class="inp flex-1 min-w-[140px] touch-btn">
+        <select onchange="filterSt=this.value;render()" class="inp touch-btn w-auto font-bold" style="max-width:160px">
+          <option value="All" ${filterSt==='All'?'selected':''}>Semua Status</option>
           <option value="Baru" ${filterSt==='Baru'?'selected':''}>🔴 Baru</option>
-          <option value="Diproses" ${filterSt==='Diproses'?'selected':''}>🟡 Proses</option>
-          <option value="Siap" ${filterSt==='Siap'?'selected':''}>🔵 Siap</option>
+          <option value="Diproses" ${filterSt==='Diproses'?'selected':''}>🟡 Diproses</option>
+          <option value="Siap" ${filterSt==='Siap'?'selected':''}>🔵 Siap Kirim</option>
           <option value="Selesai" ${filterSt==='Selesai'?'selected':''}>🟢 Selesai</option>
         </select>
       </div>
+      ${list.length===0?'<div class="text-center text-slate-500 py-10 text-sm">Belum ada order</div>':''}
       <div class="space-y-3">
-        ${list.map(o=>`
+        ${list.map(o=>{
+          const stColors={Baru:'text-rose-400',Diproses:'text-amber-400',Siap:'text-cyan-400',Selesai:'text-emerald-400'};
+          return `
           <div class="p-4 rounded-2xl glass space-y-2">
-            <div class="flex justify-between items-start">
-              <div>
+            <div class="flex justify-between items-start gap-2">
+              <div class="min-w-0">
                 <div class="text-xs font-black text-white">${o.id}</div>
-                <div class="text-[11px] text-slate-400">${o.custName} · ${o.custPhone}</div>
+                <div class="text-[11px] text-slate-400 truncate">${o.custName} · ${o.custPhone}</div>
+                <div class="text-[10px] text-slate-500">${o.date} · ${o.type}</div>
               </div>
-              <select onchange="S.orders.find(x=>x.id==='${o.id}').status=this.value;save();render()" class="bg-slate-900 border border-slate-700 px-2 py-1 rounded-full text-[10px] font-bold touch-btn ${o.status==='Selesai'?'text-emerald-400':'text-amber-300'}">
-                <option value="Baru" ${o.status==='Baru'?'selected':''}>🔴 Baru</option>
-                <option value="Diproses" ${o.status==='Diproses'?'selected':''}>🟡 Proses</option>
-                <option value="Siap" ${o.status==='Siap'?'selected':''}>🔵 Siap</option>
-                <option value="Selesai" ${o.status==='Selesai'?'selected':''}>🟢 Selesai</option>
+              <select onchange="updateOrderStatus('${o.id}',this.value)" class="inp touch-btn w-auto text-[11px] font-bold ${stColors[o.status]||'text-white'}" style="max-width:130px;padding:6px 10px">
+                ${['Baru','Diproses','Siap','Selesai'].map(st=>`<option value="${st}" ${o.status===st?'selected':''}>${st}</option>`).join('')}
               </select>
             </div>
-            <div class="text-xs text-slate-300">${o.items.map(i=>`<span class="text-emerald-400 font-bold">${i.qty}x</span> ${i.name} ${i.notes?'<span class="text-amber-300 text-[10px]">('+i.notes+')</span>':''}`).join(' · ')}</div>
+            <div class="text-xs text-slate-300 leading-relaxed">${o.items.map(i=>`<span class="text-emerald-400 font-bold">${i.qty}x</span> ${i.name}${i.notes?' <span class="text-amber-300 text-[10px]">('+i.notes+')</span>':''}`).join(' · ')}</div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
               <span class="text-sm font-black text-emerald-400">${rp(o.total)}</span>
-              <div class="flex gap-1.5">
-                <button onclick="mBonDapur('${o.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-[10px] font-bold text-slate-300 touch-btn">🍳 Bon</button>
-                <button onclick="genInvoice('${o.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 touch-btn">+ Invoice</button>
+              <div class="flex gap-1.5 flex-wrap">
+                <button onclick="mBonDapur('${o.id}')" class="btn-s text-[10px] touch-btn">🍳 Bon Dapur</button>
+                ${!S.invoices.find(i=>i.orderId===o.id)?`<button onclick="genInvoice('${o.id}')" class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 touch-btn">📄 Buat Invoice</button>`:`<span class="text-[10px] text-emerald-400 font-bold self-center">✅ ${S.invoices.find(i=>i.orderId===o.id).id}</span>`}
+                <a href="${waLink(o.custPhone,`Halo ${o.custName}, pesanan *${o.id}* Anda sedang ${o.status.toLowerCase()}. Terima kasih! 🙏\n— ${S.config.restoName}`)}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 WA</a>
               </div>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
 }
 
-function vInvoices(c) {
-  c.innerHTML = `
+function updateOrderStatus(oid,st){
+  const o=S.orders.find(x=>x.id===oid);if(!o)return;
+  o.status=st;
+  // If completed, sync CRM
+  if(st==='Selesai'){
+    const cu=S.customers.find(c=>c.id===o.custId);
+    if(cu){/* already tracked via invoice payment */}
+  }
+  save();render();
+  toast('Status Updated',`${oid} → ${st}`);
+}
+
+// ===================== VIEW: INVOICES =====================
+function vInvoices(c){
+  c.innerHTML=`
     <div class="space-y-4">
-      <h2 class="text-lg font-black text-white">Invoice & Billing</h2>
+      <h2 class="text-lg font-black text-white">📄 Invoice & Billing</h2>
+      ${S.invoices.length===0?'<div class="text-center text-slate-500 py-10 text-sm">Belum ada invoice. Buat dari halaman Order.</div>':''}
       <div class="space-y-3">
-        ${S.invoices.map(inv=>`
+        ${S.invoices.map(inv=>{
+          const dd=daysDiff(inv.dueDate);
+          const urgency=inv.remaining<=0?'':dd<0?' · <span class="text-rose-400 font-bold">OVERDUE '+Math.abs(dd)+' hari</span>':dd<=3?' · <span class="text-amber-400 font-bold">H-'+dd+' jatuh tempo</span>':'';
+          return `
           <div class="p-4 rounded-2xl glass space-y-2">
             <div class="flex justify-between items-start">
               <div>
-                <div class="text-xs font-black text-white">${inv.id} <span class="text-[10px] text-emerald-400 font-normal">← ${inv.orderId}</span></div>
-                <div class="text-[11px] text-slate-400">${inv.custName} · ${inv.custPhone}</div>
+                <div class="text-xs font-black text-white">${inv.id} <span class="text-[10px] text-slate-500 font-normal">← ${inv.orderId}</span></div>
+                <div class="text-[11px] text-slate-400">${inv.custName} · ${inv.custPhone}${urgency}</div>
+                <div class="text-[10px] text-slate-500">Terbit: ${inv.issueDate} · Jatuh tempo: ${inv.dueDate}</div>
               </div>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${inv.status==='Lunas'?'bg-emerald-500/20 text-emerald-400':'bg-rose-500/20 text-rose-400'}">${inv.status}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${inv.status==='Lunas'?'bg-emerald-500/20 text-emerald-400':inv.status==='Sebagian Dibayar'?'bg-amber-500/20 text-amber-400':'bg-rose-500/20 text-rose-400'}">${inv.status}</span>
             </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div><span class="text-slate-500">Total:</span> <span class="font-bold text-white">${rp(inv.total)}</span></div>
-              <div><span class="text-slate-500">Sisa:</span> <span class="font-bold text-rose-400">${rp(inv.remaining)}</span></div>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div><span class="text-slate-500 text-[10px]">Total</span><div class="font-bold text-white">${rp(inv.total)}</div></div>
+              <div><span class="text-slate-500 text-[10px]">Dibayar</span><div class="font-bold text-emerald-400">${rp(inv.paid)}</div></div>
+              <div><span class="text-slate-500 text-[10px]">Sisa</span><div class="font-bold text-rose-400">${rp(inv.remaining)}</div></div>
             </div>
             <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800">
               ${inv.remaining>0?`
-                <button onclick="mBayar('${inv.id}')" class="px-3 py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-bold touch-btn shadow-lg">💰 Catat Bayar</button>
-                <a href="${waLink(inv.custPhone,buildWaInvoiceMsg(inv))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 Tagih WA</a>
-              `:''}
-              <button onclick="mInvDetail('${inv.id}')" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-[10px] font-bold touch-btn">📄 Detail</button>
+                <button onclick="mBayar('${inv.id}')" class="btn-p text-[10px] touch-btn shadow-lg">💰 Catat Bayar</button>
+                <a href="${waLink(inv.custPhone,buildWaMsg(inv))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 Tagih WA</a>
+              `:'<span class="text-emerald-400 text-[10px] font-bold self-center">✅ Lunas</span>'}
+              <button onclick="mInvDetail('${inv.id}')" class="btn-s text-[10px] touch-btn">📄 Detail/Cetak</button>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
 }
 
-function vFinance(c) {
-  const totalExp = S.expenses.reduce((s,e)=>s+e.amount,0);
-  const totalIncome = S.esbSales + S.invoices.reduce((s,i)=>s+i.paid,0);
-  c.innerHTML = `
+function genInvoice(oid){
+  const o=S.orders.find(x=>x.id===oid);if(!o)return;
+  if(S.invoices.find(i=>i.orderId===oid)){toast('Sudah Ada','Invoice sudah diterbitkan untuk order ini');go('invoices');return}
+  const invId=nextId('INV');
+  const inv={id:invId,orderId:o.id,custId:o.custId,custName:o.custName,custPhone:o.custPhone,custAddr:o.custAddr,issueDate:today(),dueDate:new Date(Date.now()+3*864e5).toISOString().slice(0,10),total:o.total,paid:0,remaining:o.total,status:'Terkirim',method:'Transfer',items:o.items.map(i=>({name:i.name,qty:i.qty,price:i.price})),tax:o.tax,ship:o.ship||0};
+  S.invoices.unshift(inv);save();go('invoices');
+  toast('📄 Invoice Diterbitkan!',`${invId} — ${rp(inv.total)} untuk ${o.custName}`);
+}
+
+// ===================== VIEW: FINANCE =====================
+function vFinance(c){
+  const totalExp=S.expenses.reduce((s,e)=>s+e.amount,0);
+  const totalInc=S.esbSales+S.invoices.reduce((s,i)=>s+i.paid,0);
+  c.innerHTML=`
     <div class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-black text-white">Finance & AR</h2>
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-lg font-black text-white">💰 Keuangan & Laporan</h2>
         <div class="flex gap-2">
           <button onclick="mExpense()" class="px-3 py-2 rounded-xl bg-rose-500 text-white text-xs font-bold touch-btn">+ Pengeluaran</button>
-          <button onclick="exportCSV()" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold touch-btn">CSV</button>
+          <button onclick="exportCSV()" class="btn-s text-xs touch-btn">📥 CSV</button>
         </div>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Pemasukan (ESB+Invoice)</div><div class="text-xl font-black text-emerald-400 mt-1">${rp(totalIncome)}</div></div>
-        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Pengeluaran</div><div class="text-xl font-black text-rose-400 mt-1">${rp(totalExp)}</div></div>
-        <div class="p-4 rounded-2xl glass bg-emerald-950/40 border-emerald-500/30"><div class="text-[10px] text-emerald-300 font-bold">Laba Bersih</div><div class="text-xl font-black text-white mt-1">${rp(totalIncome-totalExp)}</div></div>
+        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Total Pemasukan</div><div class="text-xl font-black text-emerald-400 mt-1">${rp(totalInc)}</div><div class="text-[10px] text-slate-500">ESB ${rp(S.esbSales)} + Invoice ${rp(totalInc-S.esbSales)}</div></div>
+        <div class="p-4 rounded-2xl glass"><div class="text-[10px] text-slate-400 font-bold">Total Pengeluaran</div><div class="text-xl font-black text-rose-400 mt-1">${rp(totalExp)}</div></div>
+        <div class="p-4 rounded-2xl glass ${totalInc-totalExp>=0?'bg-emerald-950/30 border-emerald-500/20':'bg-rose-950/30 border-rose-500/20'}"><div class="text-[10px] font-bold ${totalInc-totalExp>=0?'text-emerald-300':'text-rose-300'}">Laba / Rugi Bersih</div><div class="text-xl font-black text-white mt-1">${rp(totalInc-totalExp)}</div></div>
       </div>
       <div class="space-y-2">
-        ${S.expenses.map(e=>`<div class="p-3 rounded-xl glass flex justify-between items-center"><div><div class="text-xs font-bold text-white">${e.desc}</div><div class="text-[10px] text-slate-400">${e.date} · ${e.cat}</div></div><div class="text-sm font-black text-rose-400">-${rp(e.amount)}</div></div>`).join('')}
-      </div>
-    </div>`;
-}
-
-function vCRM(c) {
-  c.innerHTML = `
-    <div class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-black text-white">Customer CRM</h2>
-        <button onclick="mCustomer()" class="px-3 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold touch-btn">+ Pelanggan</button>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        ${S.customers.map(cu=>`
-          <div class="p-4 rounded-2xl glass space-y-2">
-            <div class="flex justify-between"><span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">${cu.tag}</span><span class="text-[10px] text-slate-500">${cu.orders} order</span></div>
-            <div class="text-sm font-bold text-white">${cu.name}</div>
-            <div class="text-[11px] text-slate-400">${cu.phone}</div>
-            <div class="text-[10px] text-slate-500 truncate">${cu.address}</div>
-            <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-              <span class="text-[10px] text-slate-500">LTV</span><span class="text-xs font-bold text-emerald-400">${rp(cu.ltv)}</span>
-            </div>
-            <a href="${waLink(cu.phone,`Halo ${cu.name}, terima kasih sudah menjadi pelanggan setia ${S.config.restoName}! Ada yang bisa kami bantu?`)}" target="_blank" class="block text-center px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn">💬 Chat WA</a>
+        <h3 class="text-sm font-bold text-slate-300">Riwayat Pengeluaran</h3>
+        ${S.expenses.map(e=>`
+          <div class="p-3 rounded-xl glass flex justify-between items-center">
+            <div><div class="text-xs font-bold text-white">${e.desc}</div><div class="text-[10px] text-slate-400">${e.id} · ${e.date} · ${e.cat}</div></div>
+            <div class="text-sm font-black text-rose-400">-${rp(e.amount)}</div>
           </div>
         `).join('')}
       </div>
     </div>`;
 }
 
-function vAttendance(c) {
-  const todayAtt = S.attendance.filter(a=>a.date===today());
-  c.innerHTML = `
+// ===================== VIEW: CRM =====================
+function vCRM(c){
+  c.innerHTML=`
     <div class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-black text-white">Absensi Selfie & GPS</h2>
-        <button onclick="mCamera()" class="px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold touch-btn shadow-lg">📸 Check-in Absen</button>
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-lg font-black text-white">👥 CRM — Data Pelanggan</h2>
+        <button onclick="mCustomer()" class="btn-p touch-btn">+ Pelanggan Baru</button>
       </div>
-      <div class="space-y-3">
-        ${S.attendance.map(a=>`
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${S.customers.map(cu=>{
+          const custOrders=S.orders.filter(o=>o.custId===cu.id);
+          const custInvoices=S.invoices.filter(i=>i.custId===cu.id);
+          const unpaid=custInvoices.reduce((s,i)=>s+i.remaining,0);
+          return `
+          <div class="p-4 rounded-2xl glass space-y-2">
+            <div class="flex justify-between items-start">
+              <div><span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">${cu.tag}</span></div>
+              <span class="text-[10px] text-slate-500">${cu.orders} order</span>
+            </div>
+            <div class="text-sm font-bold text-white">${cu.name}</div>
+            <div class="text-[11px] text-slate-400">📱 ${cu.phone}</div>
+            <div class="text-[10px] text-slate-500 truncate">📍 ${cu.address||'-'}</div>
+            <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-[10px]">
+              <div><span class="text-slate-500">LTV</span><div class="font-bold text-emerald-400">${rp(cu.ltv)}</div></div>
+              <div><span class="text-slate-500">Piutang</span><div class="font-bold ${unpaid>0?'text-rose-400':'text-emerald-400'}">${rp(unpaid)}</div></div>
+            </div>
+            ${custOrders.length?`
+            <div class="pt-1">
+              <div class="text-[10px] font-bold text-slate-500 mb-1">Riwayat Order:</div>
+              ${custOrders.slice(0,3).map(o=>`<div class="text-[10px] text-slate-400">${o.id} · ${o.date} · <span class="font-bold ${o.status==='Selesai'?'text-emerald-400':'text-amber-400'}">${o.status}</span> · ${rp(o.total)}</div>`).join('')}
+            </div>`:''}
+            <div class="flex gap-1.5 pt-1">
+              <a href="${waLink(cu.phone,`Halo ${cu.name}, terima kasih menjadi pelanggan setia ${S.config.restoName}! Ada yang bisa kami bantu? 🙏`)}" target="_blank" class="flex-1 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn text-center">💬 Chat WA</a>
+              <button onclick="mOrder('${cu.id}')" class="flex-1 py-2 rounded-lg bg-cyan-500/15 text-cyan-400 text-[10px] font-bold touch-btn">+ Order</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+// ===================== VIEW: ATTENDANCE =====================
+function vAttendance(c){
+  const todayAtt=S.attendance.filter(a=>a.date===today());
+  const staff=loadStaff().filter(s=>s.active);
+  const checkedIn=todayAtt.map(a=>a.staffId);
+  const notYet=staff.filter(s=>!checkedIn.includes(s.id));
+
+  c.innerHTML=`
+    <div class="space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-lg font-black text-white">📸 Absensi Selfie + GPS</h2>
+        <button onclick="mCamera()" class="btn-p touch-btn shadow-lg">📸 Check-in Sekarang</button>
+      </div>
+
+      ${notYet.length?`
+      <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/20">
+        <div class="text-[11px] font-bold text-amber-300 mb-1">⚠️ Belum Check-in Hari Ini:</div>
+        <div class="text-xs text-amber-200">${notYet.map(s=>`${s.fullName} (${s.role})`).join(' · ')}</div>
+      </div>`:''}
+
+      <div class="space-y-2">
+        <h3 class="text-sm font-bold text-slate-300">Hari ini — ${today()}</h3>
+        ${todayAtt.length===0?'<div class="text-center text-slate-500 py-6 text-sm">Belum ada yang check-in hari ini</div>':''}
+        ${todayAtt.map(a=>`
           <div class="p-3 rounded-2xl glass flex items-center gap-3">
-            <img src="${a.photo}" alt="${a.name}" class="w-14 h-14 rounded-xl object-cover border-2 ${a.status==='Hadir'?'border-emerald-500':'border-amber-500'}">
+            <img src="${a.photo}" alt="" class="w-14 h-14 rounded-xl object-cover border-2 ${a.status==='Hadir'?'border-emerald-500':'border-amber-500'}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231e293b%22 width=%22100%22 height=%22100%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2240%22>👤</text></svg>'">
             <div class="flex-1 min-w-0">
               <div class="text-sm font-bold text-white">${a.name}</div>
-              <div class="text-[10px] text-slate-400">${a.role} · ${a.date}</div>
+              <div class="text-[10px] text-slate-400">${a.role}</div>
               <div class="text-[11px] font-bold ${a.status==='Hadir'?'text-emerald-400':'text-amber-400'}">${a.time} WIB — ${a.status}</div>
-              <div class="text-[10px] text-cyan-400">${a.dist}m dari resto ${a.dist<=S.config.geoRadius?'✅':'❌ DI LUAR RADIUS!'}</div>
+              <div class="text-[10px] ${a.dist<=S.config.geoRadius?'text-cyan-400':'text-rose-400'}">${a.dist}m dari resto ${a.dist<=S.config.geoRadius?'✅ Dalam radius':'❌ Luar radius'}</div>
             </div>
           </div>
         `).join('')}
       </div>
+
+      ${S.attendance.filter(a=>a.date!==today()).length?`
+      <details class="p-3 rounded-2xl glass">
+        <summary class="text-sm font-bold text-slate-300 cursor-pointer">📅 Riwayat Sebelumnya</summary>
+        <div class="space-y-2 mt-3">
+          ${S.attendance.filter(a=>a.date!==today()).slice(0,20).map(a=>`
+            <div class="p-2 rounded-xl bg-slate-950 flex items-center gap-3">
+              <img src="${a.photo}" alt="" class="w-10 h-10 rounded-lg object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231e293b%22 width=%22100%22 height=%22100%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2230%22>👤</text></svg>'">
+              <div class="flex-1"><div class="text-xs font-bold text-white">${a.name}</div><div class="text-[10px] text-slate-500">${a.date} · ${a.time} · ${a.dist}m</div></div>
+              <span class="text-[10px] font-bold ${a.status==='Hadir'?'text-emerald-400':'text-amber-400'}">${a.status}</span>
+            </div>
+          `).join('')}
+        </div>
+      </details>`:''}
     </div>`;
 }
 
-function vMenu(c) {
-  c.innerHTML = `
+// ===================== VIEW: MENU =====================
+function vMenu(c){
+  c.innerHTML=`
     <div class="space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-black text-white">Menu & Harga</h2>
-        <button onclick="mAddMenu()" class="px-3 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold touch-btn">+ Menu Baru</button>
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-lg font-black text-white">🍲 Menu & Harga</h2>
+        <button onclick="mAddMenu()" class="btn-p touch-btn">+ Menu Baru</button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         ${S.menu.map(m=>`
           <div class="p-4 rounded-2xl glass">
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">${m.cat}</span>
+            <div class="flex justify-between items-start">
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">${m.cat}</span>
+              <button onclick="if(confirm('Hapus ${m.name}?')){S.menu=S.menu.filter(x=>x.id!=='${m.id}');save();render()}" class="text-[10px] text-slate-600 hover:text-rose-400">🗑</button>
+            </div>
             <div class="text-sm font-bold text-white mt-2">${m.name}</div>
             <div class="text-base font-black text-emerald-400 mt-1">${rp(m.price)}</div>
           </div>
@@ -492,339 +648,582 @@ function vMenu(c) {
     </div>`;
 }
 
-function vSettings(c) {
-  const cf = S.config;
-  c.innerHTML = `
-    <div class="space-y-5 max-w-lg">
-      <h2 class="text-lg font-black text-white">Pengaturan Usaha</h2>
-      <div class="p-5 rounded-2xl glass space-y-4">
-        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Nama Resto</label><input type="text" id="s-name" value="${cf.restoName}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Alamat Resto</label><input type="text" id="s-addr" value="${cf.restoAddress}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white touch-btn"></div>
-        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Info Bank Invoice</label><input type="text" id="s-bank" value="${cf.bankInfo}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white touch-btn"></div>
-        <div class="grid grid-cols-3 gap-2">
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Latitude</label><input type="number" step="any" id="s-lat" value="${cf.restoLat}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white touch-btn"></div>
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Longitude</label><input type="number" step="any" id="s-lon" value="${cf.restoLon}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white touch-btn"></div>
-          <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Radius (m)</label><input type="number" id="s-rad" value="${cf.geoRadius}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white touch-btn"></div>
-        </div>
-        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Rekap Omset ESB POS Hari Ini</label><input type="number" id="s-esb" value="${S.esbSales}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-        <button onclick="saveSettings()" class="w-full py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm touch-btn">Simpan Pengaturan</button>
+// ===================== VIEW: STAFF MANAGEMENT =====================
+function vStaff(c){
+  const staff=loadStaff();
+  c.innerHTML=`
+    <div class="space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <h2 class="text-lg font-black text-white">👤 Manajemen Pegawai</h2>
+        <button onclick="mAddStaff()" class="btn-p touch-btn">+ Tambah Pegawai</button>
+      </div>
+      <div class="space-y-2">
+        ${staff.map(s=>{
+          const roleColors={owner:'text-emerald-400',manager:'text-cyan-400',admin:'text-amber-400',karyawan:'text-slate-300'};
+          const roleLabels={owner:'👑 Owner',manager:'🛡️ Manager',admin:'📝 Admin',karyawan:'👤 Karyawan'};
+          return `
+          <div class="p-4 rounded-2xl glass flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-bold text-white">${s.fullName}</div>
+              <div class="text-[11px] text-slate-400">Username: <b class="${roleColors[s.role]}">${s.username}</b> · ${s.phone||'-'}</div>
+              <div class="text-[10px] font-bold ${roleColors[s.role]}">${roleLabels[s.role]||s.role} ${!s.active?'<span class="text-rose-400">· NONAKTIF</span>':''}</div>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="mEditStaff('${s.id}')" class="btn-s text-[10px] touch-btn">✏️ Edit</button>
+              <button onclick="toggleStaff('${s.id}')" class="px-3 py-2 rounded-xl ${s.active?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'} text-[10px] font-bold touch-btn">${s.active?'Nonaktifkan':'Aktifkan'}</button>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
 }
 
-function saveSettings() {
+function toggleStaff(sid){
+  const staff=loadStaff();
+  const s=staff.find(x=>x.id===sid);
+  if(s){s.active=!s.active;saveStaff(staff);render();toast(s.active?'Diaktifkan':'Dinonaktifkan',s.fullName)}
+}
+
+// ===================== VIEW: SETTINGS =====================
+function vSettings(c){
+  const cf=S.config;
+  c.innerHTML=`
+    <div class="space-y-5 max-w-lg">
+      <h2 class="text-lg font-black text-white">⚙️ Pengaturan Usaha</h2>
+      <div class="p-5 rounded-2xl glass space-y-4">
+        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Nama Resto</label><input type="text" id="s-name" value="${cf.restoName}" class="inp touch-btn"></div>
+        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Alamat</label><input type="text" id="s-addr" value="${cf.restoAddress}" class="inp touch-btn"></div>
+        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Info Rekening Bank (untuk Invoice)</label><input type="text" id="s-bank" value="${cf.bankInfo}" class="inp touch-btn"></div>
+        <hr class="border-slate-800">
+        <div class="text-[11px] font-bold text-slate-400">📍 Lokasi GPS Resto (untuk Absensi Geofencing)</div>
+        <div class="grid grid-cols-3 gap-2">
+          <div><label class="text-[10px] text-slate-500">Latitude</label><input type="number" step="any" id="s-lat" value="${cf.restoLat}" class="inp touch-btn"></div>
+          <div><label class="text-[10px] text-slate-500">Longitude</label><input type="number" step="any" id="s-lon" value="${cf.restoLon}" class="inp touch-btn"></div>
+          <div><label class="text-[10px] text-slate-500">Radius (m)</label><input type="number" id="s-rad" value="${cf.geoRadius}" class="inp touch-btn"></div>
+        </div>
+        <button onclick="detectMyGPS()" class="w-full py-2 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold touch-btn border border-cyan-500/30">📍 Deteksi Lokasi Saya Sekarang</button>
+        <div id="gps-detect-result" class="hidden p-2 rounded-xl bg-slate-950 text-[11px] text-cyan-300 text-center"></div>
+        <hr class="border-slate-800">
+        <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Rekap Omset ESB POS Hari Ini (Rp)</label><input type="number" id="s-esb" value="${S.esbSales}" class="inp touch-btn font-bold"></div>
+        <button onclick="saveSettings()" class="w-full btn-p text-sm touch-btn shadow-lg">💾 Simpan Pengaturan</button>
+      </div>
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[10px] text-slate-500">
+        <b>Reset Data:</b> Jika ingin mulai dari nol, klik tombol di bawah.<br>
+        <button onclick="if(confirm('HAPUS SEMUA DATA? Tidak bisa dikembalikan!')){localStorage.clear();location.reload()}" class="mt-2 px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 font-bold touch-btn">🗑 Reset Semua Data</button>
+      </div>
+    </div>`;
+}
+
+function detectMyGPS(){
+  const box=document.getElementById('gps-detect-result');
+  box.className='p-2 rounded-xl bg-slate-950 text-[11px] text-cyan-300 text-center';
+  box.textContent='⏳ Mendeteksi lokasi GPS...';
+  if(!navigator.geolocation){box.textContent='❌ GPS tidak tersedia di browser ini';box.classList.add('text-rose-400');return}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('s-lat').value=pos.coords.latitude.toFixed(6);
+    document.getElementById('s-lon').value=pos.coords.longitude.toFixed(6);
+    box.innerHTML=`✅ Lokasi terdeteksi: <b>${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}</b> (akurasi ${Math.round(pos.coords.accuracy)}m). Klik Simpan!`;
+    toast('📍 GPS Aktif!','Koordinat terisi otomatis');
+  },err=>{
+    const msgs={1:'❌ Izin lokasi ditolak. Buka Settings browser → izinkan Location.',2:'❌ Posisi tidak tersedia.',3:'❌ Timeout. Coba lagi.'};
+    box.textContent=msgs[err.code]||'❌ Gagal mendapatkan GPS';
+    box.className='p-2 rounded-xl bg-rose-950 text-[11px] text-rose-300 text-center';
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+
+function saveSettings(){
   S.config.restoName=document.getElementById('s-name').value;
   S.config.restoAddress=document.getElementById('s-addr').value;
   S.config.bankInfo=document.getElementById('s-bank').value;
-  S.config.restoLat=parseFloat(document.getElementById('s-lat').value);
-  S.config.restoLon=parseFloat(document.getElementById('s-lon').value);
-  S.config.geoRadius=parseInt(document.getElementById('s-rad').value);
-  S.esbSales=Number(document.getElementById('s-esb').value);
-  save(); toast('Tersimpan!','Pengaturan berhasil diperbarui.');
+  S.config.restoLat=parseFloat(document.getElementById('s-lat').value)||DEFAULTS.restoLat;
+  S.config.restoLon=parseFloat(document.getElementById('s-lon').value)||DEFAULTS.restoLon;
+  S.config.geoRadius=parseInt(document.getElementById('s-rad').value)||DEFAULTS.geoRadius;
+  S.esbSales=Number(document.getElementById('s-esb').value)||0;
+  save();toast('✅ Tersimpan!','Pengaturan berhasil diperbarui');
 }
 
-// ====== MODALS ======
-function openModal(html) { document.getElementById('modal-container').className='fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/80 backdrop-blur-md'; document.getElementById('modal-content').innerHTML=html; }
-function closeModal() { if(webcamStream){webcamStream.getTracks().forEach(t=>t.stop());webcamStream=null;} document.getElementById('modal-container').className='hidden'; }
+// ===================== MODALS =====================
 
-function mOrder() {
-  const custOpts = S.customers.map(c=>`<option value="${c.id}">${c.name} (${c.phone})</option>`).join('');
-  const menuOpts = S.menu.map(m=>`<option value="${m.name}|${m.price}">${m.name} (${rp(m.price)})</option>`).join('');
+// --- ORDER (with CRM pre-fill) ---
+function mOrder(prefillCustId){
+  const custOpts=S.customers.map(c=>`<option value="${c.id}" ${prefillCustId===c.id?'selected':''}>${c.name} (${c.phone})</option>`).join('');
+  const menuOpts=S.menu.map(m=>`<option value="${m.id}">${m.name} — ${rp(m.price)}</option>`).join('');
   openModal(`
-    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">📝 Order Baru</h3><button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg touch-btn">✕</button></div>
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">📝 Order Baru</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
     <form onsubmit="submitOrder(event)" class="space-y-3 pt-3">
-      <div class="p-3 rounded-xl bg-slate-950 border border-emerald-500/30"><label class="text-[10px] font-bold text-emerald-400">👥 Pelanggan CRM</label><select id="o-cs" onchange="fillCust(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white mt-1 touch-btn"><option value="">-- Baru / Pilih --</option>${custOpts}</select></div>
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[10px] text-slate-400 font-bold">Nama *</label><input type="text" id="o-nm" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
-        <div><label class="text-[10px] text-slate-400 font-bold">No HP *</label><input type="text" id="o-ph" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
+      <div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20">
+        <label class="text-[10px] font-bold text-emerald-400">👥 Pilih Pelanggan CRM</label>
+        <select id="o-cs" onchange="fillCust(this.value)" class="inp touch-btn mt-1 font-bold"><option value="">— Pelanggan Baru —</option>${custOpts}</select>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[10px] text-slate-400 font-bold">Tipe</label><select id="o-tp" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"><option>Catering</option><option>Pre-order</option><option>Event</option></select></div>
-        <div><label class="text-[10px] text-slate-400 font-bold">Alamat</label><input type="text" id="o-ad" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Nama *</label><input type="text" id="o-nm" required class="inp touch-btn"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">No HP / WA *</label><input type="text" id="o-ph" required class="inp touch-btn"></div>
       </div>
-      <div><label class="text-[10px] text-slate-400 font-bold">Menu</label><select id="o-mn" onchange="calcOrder()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn">${menuOpts}</select></div>
       <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[10px] text-emerald-400 font-bold">Qty Porsi *</label><input type="number" id="o-qt" min="1" value="5" oninput="calcOrder()" class="w-full bg-slate-950 border border-emerald-500/50 rounded-lg px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-        <div><label class="text-[10px] text-slate-400 font-bold">Catatan</label><input type="text" id="o-nt" placeholder="Pedas sedang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Tipe Order</label><select id="o-tp" class="inp touch-btn"><option>Catering</option><option>Pre-order</option><option>Event</option><option>Harian</option></select></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Alamat Kirim</label><input type="text" id="o-ad" class="inp touch-btn"></div>
       </div>
+      <div id="order-items-list" class="space-y-2"></div>
+      <button type="button" onclick="addOrderItem()" class="w-full py-2 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-bold touch-btn border border-cyan-500/30">+ Tambah Item Menu</button>
       <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1">
-        <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="c-sub" class="text-slate-200 font-bold"></span></div>
-        <div class="flex justify-between text-slate-400"><span>Pajak 10%</span><span id="c-tax" class="text-slate-200 font-bold"></span></div>
-        <div class="flex justify-between font-black text-white pt-1 border-t border-slate-800"><span>Total</span><span id="c-tot" class="text-emerald-400 text-sm"></span></div>
+        <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="c-sub" class="text-slate-200 font-bold">Rp 0</span></div>
+        <div class="flex justify-between text-slate-400"><span>Pajak 10%</span><span id="c-tax" class="text-slate-200 font-bold">Rp 0</span></div>
+        <div class="flex justify-between font-black text-white pt-1 border-t border-slate-800"><span>TOTAL</span><span id="c-tot" class="text-emerald-400 text-sm">Rp 0</span></div>
       </div>
-      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Batal</button><button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn shadow-lg">Simpan Order</button></div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn shadow-lg">💾 Simpan Order</button></div>
     </form>
   `);
-  setTimeout(calcOrder,50);
+  if(prefillCustId)setTimeout(()=>fillCust(prefillCustId),50);
+  addOrderItem(); // Add first item row
 }
 
-function fillCust(id) {
+let orderItemCount=0;
+function addOrderItem(){
+  orderItemCount++;
+  const menuOpts=S.menu.map(m=>`<option value="${m.id}">${m.name} — ${rp(m.price)}</option>`).join('');
+  const div=document.createElement('div');
+  div.className='p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2';
+  div.id=`oi-${orderItemCount}`;
+  div.innerHTML=`
+    <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400">Item #${orderItemCount}</span><button type="button" onclick="document.getElementById('oi-${orderItemCount}').remove();calcOrderTotal()" class="text-[10px] text-rose-400 font-bold touch-btn">✕ Hapus</button></div>
+    <select onchange="calcOrderTotal()" class="oi-menu inp touch-btn text-[11px]">${menuOpts}</select>
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-[10px] text-slate-500">Qty Porsi</label><input type="number" min="1" value="1" oninput="calcOrderTotal()" class="oi-qty inp touch-btn font-bold"></div>
+      <div><label class="text-[10px] text-slate-500">Catatan</label><input type="text" placeholder="Pedas, dll" class="oi-note inp touch-btn"></div>
+    </div>`;
+  document.getElementById('order-items-list').appendChild(div);
+  calcOrderTotal();
+}
+
+function calcOrderTotal(){
+  let sub=0;
+  document.querySelectorAll('#order-items-list > div').forEach(row=>{
+    const menuId=row.querySelector('.oi-menu').value;
+    const mi=S.menu.find(m=>m.id===menuId);
+    const qty=parseInt(row.querySelector('.oi-qty').value)||1;
+    if(mi)sub+=mi.price*qty;
+  });
+  const tax=Math.round(sub*0.1);
+  document.getElementById('c-sub').textContent=rp(sub);
+  document.getElementById('c-tax').textContent=rp(tax);
+  document.getElementById('c-tot').textContent=rp(sub+tax);
+}
+
+function fillCust(id){
   const c=S.customers.find(x=>x.id===id);
-  if(c){document.getElementById('o-nm').value=c.name;document.getElementById('o-ph').value=c.phone;document.getElementById('o-ad').value=c.address;toast('CRM Terisi',c.name)}
+  if(c){
+    document.getElementById('o-nm').value=c.name;
+    document.getElementById('o-ph').value=c.phone;
+    document.getElementById('o-ad').value=c.address||'';
+    toast('👥 CRM Terisi',`Data ${c.name} otomatis diisi`);
+  } else {
+    document.getElementById('o-nm').value='';
+    document.getElementById('o-ph').value='';
+    document.getElementById('o-ad').value='';
+  }
 }
 
-function calcOrder() {
-  const v=document.getElementById('o-mn').value.split('|'),p=Number(v[1]),q=Math.max(1,parseInt(document.getElementById('o-qt').value)||1),sub=p*q,tax=Math.round(sub*.1);
-  document.getElementById('c-sub').textContent=rp(sub);document.getElementById('c-tax').textContent=rp(tax);document.getElementById('c-tot').textContent=rp(sub+tax);
-}
-
-function submitOrder(e) {
+function submitOrder(e){
   e.preventDefault();
-  const cid=document.getElementById('o-cs').value||'c'+uid(),nm=document.getElementById('o-nm').value,ph=document.getElementById('o-ph').value,ad=document.getElementById('o-ad').value,tp=document.getElementById('o-tp').value;
-  const v=document.getElementById('o-mn').value.split('|'),mn=v[0],pr=Number(v[1]),qt=parseInt(document.getElementById('o-qt').value)||1,nt=document.getElementById('o-nt').value;
-  const sub=pr*qt,tax=Math.round(sub*.1),tot=sub+tax;
-  const ec=S.customers.find(c=>c.id===cid||c.phone===ph);
-  if(!ec) S.customers.unshift({id:cid,name:nm,phone:ph,address:ad,tag:'Baru',ltv:tot,orders:1});
-  else{ec.ltv+=tot;ec.orders++}
-  S.orders.unshift({id:'ORD-'+uid(),custId:cid,custName:nm,custPhone:ph,custAddr:ad,type:tp,status:'Diproses',date:today(),items:[{name:mn,qty:qt,price:pr,notes:nt}],subtotal:sub,tax,ship:0,total:tot});
-  save();closeModal();go('orders');toast('Order Tersimpan!',`${qt}x ${mn} untuk ${nm}`);
+  const csVal=document.getElementById('o-cs').value;
+  const nm=document.getElementById('o-nm').value.trim();
+  const ph=document.getElementById('o-ph').value.trim();
+  const ad=document.getElementById('o-ad').value.trim();
+  const tp=document.getElementById('o-tp').value;
+
+  // Collect items
+  const items=[];
+  document.querySelectorAll('#order-items-list > div').forEach(row=>{
+    const menuId=row.querySelector('.oi-menu').value;
+    const mi=S.menu.find(m=>m.id===menuId);
+    const qty=parseInt(row.querySelector('.oi-qty').value)||1;
+    const note=row.querySelector('.oi-note').value.trim();
+    if(mi)items.push({name:mi.name,qty,price:mi.price,notes:note});
+  });
+  if(items.length===0){toast('⚠️ Error','Tambahkan minimal 1 item menu');return}
+
+  const sub=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const tax=Math.round(sub*0.1);
+  const total=sub+tax;
+
+  // CRM SYNC: find or create customer
+  let custId=csVal;
+  let existCust=csVal?S.customers.find(c=>c.id===csVal):S.customers.find(c=>c.phone===ph);
+  if(existCust){
+    custId=existCust.id;
+    existCust.orders=(existCust.orders||0)+1;
+    // Update name/address if changed
+    if(nm)existCust.name=nm;
+    if(ad)existCust.address=ad;
+  } else {
+    custId='c'+Date.now();
+    S.customers.unshift({id:custId,name:nm,phone:ph,address:ad,tag:'Baru',ltv:0,orders:1});
+  }
+
+  const orderId=nextId('ORD');
+  S.orders.unshift({id:orderId,custId,custName:nm,custPhone:ph,custAddr:ad,type:tp,status:'Baru',date:today(),items,subtotal:sub,tax,ship:0,total});
+  save();closeModal();go('orders');
+  toast('✅ Order Tersimpan!',`${orderId} — ${items.length} item untuk ${nm}`);
 }
 
-function genInvoice(oid) {
-  const o=S.orders.find(x=>x.id===oid);if(!o)return;
-  if(S.invoices.find(i=>i.orderId===oid)){go('invoices');toast('Sudah Ada','Invoice sudah diterbitkan');return}
-  const inv={id:'INV-'+uid(),orderId:o.id,custId:o.custId,custName:o.custName,custPhone:o.custPhone,custAddr:o.custAddr,issueDate:today(),dueDate:new Date(Date.now()+3*864e5).toISOString().slice(0,10),total:o.total,paid:0,remaining:o.total,status:'Terkirim',method:'Transfer BCA',items:o.items.map(i=>({name:i.name,qty:i.qty,price:i.price})),tax:o.tax,ship:o.ship};
-  S.invoices.unshift(inv);save();go('invoices');toast('Invoice Diterbitkan!',`${inv.id} — ${rp(inv.total)}`);
-}
-
-function mBayar(invId) {
+// --- BAYAR ---
+function mBayar(invId){
   const inv=S.invoices.find(i=>i.id===invId);if(!inv)return;
   openModal(`
     <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">💰 Catat Pembayaran</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
     <div class="space-y-4 pt-3">
-      <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-        <div class="font-bold text-white">${inv.id} — ${inv.custName}</div>
-        <div class="text-emerald-400 font-black text-base mt-1">Sisa: ${rp(inv.remaining)}</div>
+      <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+        <div class="text-xs font-bold text-white">${inv.id} — ${inv.custName}</div>
+        <div class="text-lg font-black text-rose-400 mt-1">Sisa: ${rp(inv.remaining)}</div>
       </div>
-      <div><label class="text-[10px] font-bold text-slate-400">Nominal Bayar (Rp)</label><input type="number" id="pay-amt" value="${inv.remaining}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold touch-btn mt-1"></div>
+      <div><label class="text-[10px] font-bold text-slate-400">Nominal Bayar (Rp)</label><input type="number" id="pay-amt" value="${inv.remaining}" class="inp touch-btn font-bold mt-1"></div>
+      <div><label class="text-[10px] font-bold text-slate-400">Metode Bayar</label><select id="pay-method" class="inp touch-btn mt-1"><option>Transfer Bank</option><option>Tunai</option><option>QRIS</option><option>Lainnya</option></select></div>
       <div class="flex gap-2">
-        <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Batal</button>
-        <button onclick="recordPayment('${inv.id}',Number(document.getElementById('pay-amt').value));closeModal();go('invoices')" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn shadow-lg">Simpan Bayar</button>
+        <button onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button>
+        <button onclick="doPay('${inv.id}')" class="flex-1 btn-p touch-btn shadow-lg">✅ Simpan</button>
       </div>
     </div>
   `);
 }
+function doPay(invId){
+  const amt=Number(document.getElementById('pay-amt').value);
+  if(!amt||amt<=0){toast('⚠️','Masukkan nominal yang valid');return}
+  recordPayment(invId,amt);closeModal();go('invoices');
+}
 
-function mBonDapur(oid) {
+// --- BON DAPUR ---
+function mBonDapur(oid){
   const o=S.orders.find(x=>x.id===oid);if(!o)return;
   openModal(`
-    <div id="printable-area" class="p-5 bg-slate-950 text-white font-mono text-xs space-y-2 rounded-xl">
-      <div class="text-center border-b border-dashed border-slate-700 pb-2"><h3 class="font-black text-emerald-400">🍳 BON DAPUR</h3><div>${o.id}</div></div>
-      <div>Pelanggan: <b>${o.custName}</b> (${o.type})</div>
+    <div id="printable-area" class="p-5 bg-white text-slate-900 rounded-xl font-mono text-xs space-y-2">
+      <div class="text-center border-b-2 border-dashed border-slate-300 pb-2"><h3 class="font-black text-lg">🍳 BON DAPUR</h3><div class="text-sm font-bold">${o.id}</div></div>
+      <div class="text-sm">Pelanggan: <b>${o.custName}</b></div>
+      <div>Tipe: ${o.type} · ${o.date}</div>
       <div>Alamat: ${o.custAddr||'-'}</div>
-      <div class="py-2 border-y border-dashed border-slate-700 space-y-1">
-        ${o.items.map(i=>`<div><b class="text-emerald-400">${i.qty}x</b> ${i.name} ${i.notes?'<div class="text-amber-300 text-[10px] pl-3">'+i.notes+'</div>':''}</div>`).join('')}
+      <div class="py-2 border-y-2 border-dashed border-slate-300 space-y-1.5">
+        ${o.items.map(i=>`<div class="text-sm"><b>${i.qty}x</b> ${i.name}${i.notes?'<div class="text-[11px] text-amber-600 pl-4">⚠ '+i.notes+'</div>':''}</div>`).join('')}
       </div>
     </div>
-    <div class="flex gap-2 pt-3 no-print"><button onclick="closeModal()" class="flex-1 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Tutup</button><button onclick="window.print()" class="flex-1 py-2 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn">🖨️ Cetak</button></div>
+    <div class="flex gap-2 pt-3 no-print"><button onclick="closeModal()" class="flex-1 btn-s touch-btn">Tutup</button><button onclick="window.print()" class="flex-1 btn-p touch-btn">🖨️ Cetak</button></div>
   `);
 }
 
-function mInvDetail(invId) {
+// --- INVOICE DETAIL ---
+function mInvDetail(invId){
   const inv=S.invoices.find(i=>i.id===invId);if(!inv)return;
   openModal(`
     <div id="printable-area" class="p-5 bg-white text-slate-900 rounded-xl text-xs space-y-3">
-      <div class="flex justify-between border-b border-emerald-600 pb-2">
-        <div><h2 class="text-base font-black text-emerald-900">${S.config.restoName}</h2><p class="text-[10px] text-slate-500">${S.config.restoAddress}</p></div>
-        <div class="text-right"><div class="font-black text-emerald-800">${inv.id}</div><div class="text-[10px] text-slate-500">${inv.issueDate}</div></div>
+      <div class="flex justify-between border-b-2 border-emerald-600 pb-2">
+        <div><h2 class="text-base font-black text-emerald-800">${S.config.restoName}</h2><p class="text-[10px] text-slate-500">${S.config.restoAddress}</p></div>
+        <div class="text-right"><div class="font-black text-emerald-700 text-sm">${inv.id}</div><div class="text-[10px] text-slate-500">${inv.issueDate}</div></div>
       </div>
-      <div>
-        <div class="font-bold">Kepada: ${inv.custName} (${inv.custPhone})</div>
-        <div class="text-slate-600">${inv.custAddr}</div>
-      </div>
-      <table class="w-full text-[11px]"><thead><tr class="border-b"><th class="text-left py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Harga</th><th class="text-right">Jumlah</th></tr></thead><tbody>
-        ${inv.items.map(i=>`<tr class="border-b border-slate-200"><td class="py-1">${i.name}</td><td class="text-right">${i.qty}</td><td class="text-right">${rp(i.price)}</td><td class="text-right font-bold">${rp(i.qty*i.price)}</td></tr>`).join('')}
+      <div><div class="font-bold">Kepada: ${inv.custName}</div><div class="text-slate-600">📱 ${inv.custPhone} · 📍 ${inv.custAddr}</div></div>
+      <table class="w-full text-[11px]"><thead><tr class="border-b-2"><th class="text-left py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Harga</th><th class="text-right">Jumlah</th></tr></thead><tbody>
+        ${inv.items.map(i=>`<tr class="border-b"><td class="py-1">${i.name}</td><td class="text-right">${i.qty}</td><td class="text-right">${rp(i.price)}</td><td class="text-right font-bold">${rp(i.qty*i.price)}</td></tr>`).join('')}
       </tbody></table>
       <div class="text-right space-y-0.5">
         <div>Pajak 10%: ${rp(inv.tax)}</div>
         ${inv.ship?`<div>Ongkir: ${rp(inv.ship)}</div>`:''}
-        <div class="font-black text-emerald-700 text-sm">Total: ${rp(inv.total)}</div>
-        ${inv.paid>0?`<div class="text-slate-600">Dibayar: ${rp(inv.paid)}</div>`:''}
-        ${inv.remaining>0?`<div class="font-bold text-rose-600">Sisa: ${rp(inv.remaining)}</div>`:''}
+        <div class="font-black text-emerald-700 text-sm border-t pt-1">Total: ${rp(inv.total)}</div>
+        ${inv.paid>0?`<div class="text-emerald-600">Dibayar: ${rp(inv.paid)}</div>`:''}
+        ${inv.remaining>0?`<div class="font-bold text-rose-600">Sisa: ${rp(inv.remaining)}</div>`:'<div class="font-bold text-emerald-600">✅ LUNAS</div>'}
       </div>
-      <div class="p-2 bg-slate-100 rounded-lg text-[10px]">${S.config.bankInfo}</div>
+      <div class="p-2 bg-slate-100 rounded-lg text-[10px]">Pembayaran ke: <b>${S.config.bankInfo}</b></div>
+      <div class="text-center text-[10px] text-slate-400 pt-2">Jatuh tempo: ${inv.dueDate}</div>
     </div>
-    <div class="flex gap-2 pt-3 no-print"><button onclick="closeModal()" class="flex-1 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Tutup</button><button onclick="window.print()" class="flex-1 py-2 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn">🖨️ Cetak</button></div>
+    <div class="flex gap-2 pt-3 no-print"><button onclick="closeModal()" class="flex-1 btn-s touch-btn">Tutup</button><button onclick="window.print()" class="flex-1 btn-p touch-btn">🖨️ Cetak</button></div>
   `);
 }
 
-function mExpense() {
+// --- EXPENSE ---
+function mExpense(){
   openModal(`
-    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">💸 Pengeluaran</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">💸 Catat Pengeluaran</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
     <form onsubmit="submitExp(event)" class="space-y-3 pt-3">
-      <div><label class="text-[10px] text-slate-400 font-bold">Kategori</label><select id="e-ct" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"><option>Bahan Baku</option><option>Operasional</option><option>Gaji</option></select></div>
-      <div><label class="text-[10px] text-slate-400 font-bold">Deskripsi *</label><input type="text" id="e-ds" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
-      <div><label class="text-[10px] text-slate-400 font-bold">Nominal (Rp) *</label><input type="number" id="e-am" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Batal</button><button type="submit" class="flex-1 py-2.5 rounded-xl bg-rose-500 text-xs font-bold text-white touch-btn">Simpan</button></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Kategori</label><select id="e-ct" class="inp touch-btn"><option>Bahan Baku</option><option>Operasional</option><option>Gaji</option><option>Sewa</option><option>Lainnya</option></select></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Deskripsi *</label><input type="text" id="e-ds" required placeholder="Contoh: Belanja sayuran di pasar" class="inp touch-btn"></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Nominal (Rp) *</label><input type="number" id="e-am" required class="inp touch-btn font-bold"></div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 px-3 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs touch-btn">💾 Simpan</button></div>
     </form>
   `);
 }
-function submitExp(e) {
+function submitExp(e){
   e.preventDefault();
-  S.expenses.unshift({id:'EXP-'+uid(),date:today(),cat:document.getElementById('e-ct').value,desc:document.getElementById('e-ds').value,amount:Number(document.getElementById('e-am').value)});
-  save();closeModal();go('finance');toast('Tercatat','Pengeluaran tersimpan');
+  const eid=nextId('EXP');
+  S.expenses.unshift({id:eid,date:today(),cat:document.getElementById('e-ct').value,desc:document.getElementById('e-ds').value,amount:Number(document.getElementById('e-am').value)});
+  save();closeModal();go('finance');toast('Tercatat',eid+' tersimpan');
 }
 
-function mCustomer() {
+// --- CUSTOMER ---
+function mCustomer(){
   openModal(`
-    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">➕ Pelanggan Baru</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">👥 Pelanggan Baru</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
     <form onsubmit="submitCust(event)" class="space-y-3 pt-3">
-      <div><label class="text-[10px] text-slate-400 font-bold">Nama *</label><input type="text" id="cu-nm" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
-      <div><label class="text-[10px] text-slate-400 font-bold">No WA *</label><input type="text" id="cu-ph" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
-      <div><label class="text-[10px] text-slate-400 font-bold">Alamat</label><input type="text" id="cu-ad" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
-      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Batal</button><button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn">Simpan</button></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Nama Lengkap *</label><input type="text" id="cu-nm" required class="inp touch-btn"></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">No WA / HP *</label><input type="text" id="cu-ph" required placeholder="08xxxxxxxxxx" class="inp touch-btn"></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Alamat</label><input type="text" id="cu-ad" class="inp touch-btn"></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Tag / Kategori</label><select id="cu-tg" class="inp touch-btn"><option>Baru</option><option>VIP</option><option>Catering Regular</option><option>Corporate</option><option>Reseller</option></select></div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn">💾 Simpan</button></div>
     </form>
   `);
 }
-function submitCust(e) {
+function submitCust(e){
   e.preventDefault();
-  S.customers.unshift({id:'c'+uid(),name:document.getElementById('cu-nm').value,phone:document.getElementById('cu-ph').value,address:document.getElementById('cu-ad').value,tag:'Baru',ltv:0,orders:0});
-  save();closeModal();go('crm');toast('Tersimpan','Pelanggan ditambahkan ke CRM');
+  S.customers.unshift({id:'c'+Date.now(),name:document.getElementById('cu-nm').value.trim(),phone:document.getElementById('cu-ph').value.trim(),address:document.getElementById('cu-ad').value.trim(),tag:document.getElementById('cu-tg').value,ltv:0,orders:0});
+  save();closeModal();go('crm');toast('✅ Tersimpan','Pelanggan baru ditambahkan ke CRM');
 }
 
-function mAddMenu() {
+// --- MENU ---
+function mAddMenu(){
   openModal(`
     <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">🍲 Menu Baru</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
     <form onsubmit="submitMenu(event)" class="space-y-3 pt-3">
-      <div><label class="text-[10px] text-slate-400 font-bold">Nama *</label><input type="text" id="mn-nm" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
+      <div><label class="text-[10px] text-slate-400 font-bold">Nama Menu *</label><input type="text" id="mn-nm" required class="inp touch-btn"></div>
       <div class="grid grid-cols-2 gap-2">
-        <div><label class="text-[10px] text-slate-400 font-bold">Harga (Rp) *</label><input type="number" id="mn-pr" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-        <div><label class="text-[10px] text-slate-400 font-bold">Kategori</label><select id="mn-ct" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"><option>Main</option><option>Beverage</option><option>Catering</option><option>Soup</option></select></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Harga (Rp) *</label><input type="number" id="mn-pr" required class="inp touch-btn font-bold"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Kategori</label><select id="mn-ct" class="inp touch-btn"><option>Main</option><option>Beverage</option><option>Catering</option><option>Snack</option><option>Dessert</option></select></div>
       </div>
-      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 touch-btn">Batal</button><button type="submit" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-xs font-bold text-white touch-btn">Simpan</button></div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn">💾 Simpan</button></div>
     </form>
   `);
 }
-function submitMenu(e) {
+function submitMenu(e){
   e.preventDefault();
-  S.menu.unshift({id:'m'+uid(),name:document.getElementById('mn-nm').value,price:Number(document.getElementById('mn-pr').value),cat:document.getElementById('mn-ct').value});
-  save();closeModal();go('menu');toast('Tersimpan','Menu baru terhubung ke form order');
+  S.menu.unshift({id:'m'+Date.now(),name:document.getElementById('mn-nm').value.trim(),price:Number(document.getElementById('mn-pr').value),cat:document.getElementById('mn-ct').value});
+  save();closeModal();go('menu');toast('✅ Tersimpan','Menu baru tersedia di form order');
 }
 
-// ====== CAMERA MODULE (Dual Mode: WebRTC + Native) ======
-let capturedPhoto = null, currentDist = 0;
-
-function mCamera() {
-  capturedPhoto = null; currentDist = 0;
+// --- STAFF ADD/EDIT ---
+function mAddStaff(){
   openModal(`
-    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">📸 Absensi Check-in</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
-    <div class="space-y-3 pt-3">
-      <div><label class="text-[10px] text-slate-400 font-bold">Nama Staf</label><input type="text" id="cam-name" value="${S.loggedIn?S.loggedIn.name:''}" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white font-bold touch-btn"></div>
-      <div><label class="text-[10px] text-slate-400 font-bold">Role</label><input type="text" id="cam-role" value="${S.loggedIn?S.loggedIn.role:'Staf'}" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-white touch-btn"></div>
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">👤 Tambah Pegawai</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <form onsubmit="submitStaff(event)" class="space-y-3 pt-3">
+      <div><label class="text-[10px] text-slate-400 font-bold">Nama Lengkap *</label><input type="text" id="st-nm" required class="inp touch-btn"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Username Login *</label><input type="text" id="st-un" required placeholder="huruf kecil tanpa spasi" class="inp touch-btn"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Password *</label><input type="text" id="st-pw" required value="1234" class="inp touch-btn"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Role / Jabatan</label><select id="st-rl" class="inp touch-btn"><option value="karyawan">👤 Karyawan</option><option value="admin">📝 Admin</option><option value="manager">🛡️ Manager</option><option value="owner">👑 Owner</option></select></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">No HP</label><input type="text" id="st-ph" class="inp touch-btn"></div>
+      </div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn">💾 Simpan</button></div>
+    </form>
+  `);
+}
+function submitStaff(e){
+  e.preventDefault();
+  const staff=loadStaff();
+  const un=document.getElementById('st-un').value.trim().toLowerCase();
+  if(staff.find(s=>s.username===un)){toast('⚠️ Gagal','Username sudah dipakai!');return}
+  staff.push({id:'s'+Date.now(),username:un,password:document.getElementById('st-pw').value,fullName:document.getElementById('st-nm').value.trim(),role:document.getElementById('st-rl').value,phone:document.getElementById('st-ph').value.trim(),active:true});
+  saveStaff(staff);closeModal();go('staff');toast('✅ Pegawai Ditambahkan',un);
+}
 
-      <div class="relative w-full h-48 rounded-xl bg-slate-950 border-2 border-emerald-500/50 overflow-hidden">
-        <video id="cam-vid" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
-        <img id="cam-img" class="hidden absolute inset-0 w-full h-full object-cover">
+function mEditStaff(sid){
+  const staff=loadStaff();
+  const s=staff.find(x=>x.id===sid);if(!s)return;
+  openModal(`
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">✏️ Edit Pegawai</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <form onsubmit="updateStaff(event,'${sid}')" class="space-y-3 pt-3">
+      <div><label class="text-[10px] text-slate-400 font-bold">Nama Lengkap</label><input type="text" id="st-nm" value="${s.fullName}" required class="inp touch-btn"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Username</label><input type="text" id="st-un" value="${s.username}" required class="inp touch-btn"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Password Baru</label><input type="text" id="st-pw" value="${s.password}" required class="inp touch-btn"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Role</label><select id="st-rl" class="inp touch-btn">
+          ${['karyawan','admin','manager','owner'].map(r=>`<option value="${r}" ${s.role===r?'selected':''}>${r}</option>`).join('')}
+        </select></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">No HP</label><input type="text" id="st-ph" value="${s.phone||''}" class="inp touch-btn"></div>
+      </div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn">💾 Simpan</button></div>
+    </form>
+  `);
+}
+function updateStaff(e,sid){
+  e.preventDefault();
+  const staff=loadStaff();
+  const s=staff.find(x=>x.id===sid);if(!s)return;
+  s.fullName=document.getElementById('st-nm').value.trim();
+  s.username=document.getElementById('st-un').value.trim().toLowerCase();
+  s.password=document.getElementById('st-pw').value;
+  s.role=document.getElementById('st-rl').value;
+  s.phone=document.getElementById('st-ph').value.trim();
+  saveStaff(staff);closeModal();go('staff');toast('✅ Diperbarui',s.fullName);
+}
+
+// ===================== CAMERA + GPS MODULE =====================
+let capturedPhoto=null, currentDist=null, currentLat=null, currentLon=null;
+
+function mCamera(){
+  capturedPhoto=null;currentDist=null;currentLat=null;currentLon=null;
+  openModal(`
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">📸 Check-in Absensi</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <div class="space-y-3 pt-3">
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Nama</label><input type="text" id="cam-name" value="${S.loggedIn?S.loggedIn.name:''}" readonly class="inp touch-btn bg-slate-800 font-bold"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Role</label><input type="text" id="cam-role" value="${S.loggedIn?S.loggedIn.role:''}" readonly class="inp touch-btn bg-slate-800"></div>
       </div>
 
-      <div id="gps-box" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center font-bold text-slate-400">📍 Memuat GPS...</div>
+      <div class="relative w-full h-48 rounded-2xl bg-slate-950 border-2 border-dashed border-slate-700 overflow-hidden flex items-center justify-center">
+        <video id="cam-vid" autoplay playsinline muted class="hidden w-full h-full object-cover" style="transform:scaleX(-1)"></video>
+        <img id="cam-img" class="hidden absolute inset-0 w-full h-full object-cover">
+        <div id="cam-placeholder" class="text-center text-slate-500"><div class="text-3xl mb-1">📸</div><div class="text-[10px] font-bold">Ambil foto dengan tombol di bawah</div></div>
+      </div>
+
+      <div id="gps-box" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-center">
+        <div class="font-bold text-slate-400">📍 Memuat GPS...</div>
+        <div class="text-[10px] text-slate-500 mt-1">Pastikan lokasi / GPS di HP aktif</div>
+      </div>
 
       <div class="grid grid-cols-2 gap-2">
-        <button onclick="startCam()" class="py-2.5 rounded-xl bg-emerald-600 text-white text-[11px] font-bold touch-btn">⚡ Live Stream</button>
-        <label class="py-2.5 rounded-xl bg-slate-800 text-slate-200 text-[11px] font-bold touch-btn text-center cursor-pointer border border-slate-700">
+        <button type="button" onclick="startCam()" class="py-2.5 rounded-xl bg-emerald-600 text-white text-[11px] font-bold touch-btn">⚡ Webcam Live</button>
+        <label class="py-2.5 rounded-xl bg-slate-800 text-slate-200 text-[11px] font-bold touch-btn text-center cursor-pointer border border-slate-700 flex items-center justify-center gap-1">
           📱 Kamera HP
           <input type="file" accept="image/*" capture="user" onchange="nativeCam(event)" class="hidden">
         </label>
       </div>
-      <button id="snap-btn" onclick="snapPhoto()" class="hidden w-full py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold touch-btn">📸 Tangkap Foto</button>
+      <button id="snap-btn" onclick="snapPhoto()" class="hidden w-full py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold touch-btn">📸 Snap Foto!</button>
 
-      <div id="gps-warn" class="hidden p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-300 font-bold">❌ DI LUAR RADIUS RESTO! Absensi tidak bisa dikirim.</div>
+      <div id="gps-warn" class="hidden p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-300 font-bold text-center"></div>
 
-      <button id="submit-att-btn" onclick="submitAtt()" class="w-full py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm touch-btn shadow-lg disabled:opacity-50" disabled>Kirim Absensi</button>
+      <button id="submit-att-btn" onclick="submitAtt()" class="w-full py-3 rounded-xl bg-emerald-500 text-white font-bold text-sm touch-btn shadow-lg disabled:opacity-40 disabled:cursor-not-allowed" disabled>📤 Kirim Absensi</button>
+      <div id="att-status" class="text-[10px] text-center text-slate-500"></div>
     </div>
   `);
-  setTimeout(getGPS,100);
+  // AUTO-activate GPS immediately
+  setTimeout(activateGPS,200);
 }
 
-async function startCam() {
-  try {
+function activateGPS(){
+  const box=document.getElementById('gps-box');
+  const warn=document.getElementById('gps-warn');
+  const status=document.getElementById('att-status');
+
+  if(!navigator.geolocation){
+    box.innerHTML='<div class="font-bold text-rose-400">❌ GPS tidak tersedia di browser ini</div>';
+    status.textContent='GPS tidak tersedia. Absensi tanpa validasi lokasi.';
+    currentDist=0; // allow without GPS
+    checkAttReady();
+    return;
+  }
+
+  box.innerHTML='<div class="font-bold text-amber-400">⏳ Mendeteksi lokasi GPS...</div><div class="text-[10px] text-slate-500 mt-1">Tunggu beberapa detik...</div>';
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      currentLat=pos.coords.latitude;
+      currentLon=pos.coords.longitude;
+      currentDist=haversine(S.config.restoLat,S.config.restoLon,currentLat,currentLon);
+      const inRadius=currentDist<=S.config.geoRadius;
+
+      box.innerHTML=`
+        <div class="font-bold ${inRadius?'text-emerald-400':'text-rose-400'}">${inRadius?'✅':'❌'} ${currentDist}m dari resto ${inRadius?'— Dalam Radius':'— DI LUAR RADIUS!'}</div>
+        <div class="text-[10px] text-slate-500 mt-1">Koordinat: ${currentLat.toFixed(5)}, ${currentLon.toFixed(5)} · Akurasi: ${Math.round(pos.coords.accuracy)}m</div>
+      `;
+      box.className=`p-3 rounded-xl border text-xs text-center ${inRadius?'bg-emerald-950/30 border-emerald-500/30':'bg-rose-950/30 border-rose-500/30'}`;
+
+      if(!inRadius){
+        warn.className='p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-300 font-bold text-center';
+        warn.textContent=`❌ Anda ${currentDist}m dari resto. Radius absensi: ${S.config.geoRadius}m. Absensi ditolak!`;
+      } else {
+        warn.className='hidden';
+      }
+      checkAttReady();
+      status.textContent=inRadius?'GPS OK — siap kirim absensi':'GPS OK — tapi di luar radius';
+    },
+    err=>{
+      const msgs={1:'Izin lokasi ditolak. Buka Settings browser → izinkan.',2:'Posisi tidak tersedia.',3:'Timeout — coba lagi.'};
+      box.innerHTML=`<div class="font-bold text-rose-400">❌ ${msgs[err.code]||'Gagal GPS'}</div>`;
+      box.className='p-3 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs text-center';
+      currentDist=null;
+      status.textContent='GPS gagal. Coba reload halaman atau aktifkan GPS di HP.';
+      checkAttReady();
+    },
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+  );
+}
+
+async function startCam(){
+  try{
     const v=document.getElementById('cam-vid');
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
-    webcamStream=stream; v.srcObject=stream; v.play();
-    v.className='w-full h-full object-cover scale-x-[-1]';
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    webcamStream=stream;v.srcObject=stream;v.play();
+    v.className='w-full h-full object-cover';v.style.transform='scaleX(-1)';
     document.getElementById('cam-img').className='hidden';
+    document.getElementById('cam-placeholder').className='hidden';
     document.getElementById('snap-btn').className='w-full py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold touch-btn';
-    toast('Kamera Aktif','Stream kamera depan berhasil dimulai');
-  } catch(e) { toast('Info','Gunakan tombol "📱 Kamera HP" jika izin kamera ditolak'); }
+    toast('📸 Kamera Aktif','Stream berhasil dimulai');
+  }catch(e){toast('ℹ️ Info','Gunakan tombol "📱 Kamera HP" jika webcam tidak tersedia')}
 }
 
-function snapPhoto() {
-  const v=document.getElementById('cam-vid');
-  if(!v||!v.videoWidth)return;
+function snapPhoto(){
+  const v=document.getElementById('cam-vid');if(!v||!v.videoWidth)return;
   const canvas=document.createElement('canvas');canvas.width=v.videoWidth;canvas.height=v.videoHeight;
-  canvas.getContext('2d').drawImage(v,0,0);
+  const ctx=canvas.getContext('2d');ctx.translate(canvas.width,0);ctx.scale(-1,1);ctx.drawImage(v,0,0);
   capturedPhoto=canvas.toDataURL('image/jpeg',0.7);
   document.getElementById('cam-img').src=capturedPhoto;
   document.getElementById('cam-img').className='absolute inset-0 w-full h-full object-cover';
   v.className='hidden';
-  checkSubmitReady();
-  toast('Foto Diambil!','Snapshot berhasil');
+  document.getElementById('cam-placeholder').className='hidden';
+  document.getElementById('snap-btn').className='hidden';
+  if(webcamStream){webcamStream.getTracks().forEach(t=>t.stop());webcamStream=null;}
+  checkAttReady();toast('📸 Foto Diambil!','');
 }
 
-function nativeCam(e) {
-  const f=e.target.files[0]; if(!f)return;
+function nativeCam(e){
+  const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=function(ev){
     capturedPhoto=ev.target.result;
     document.getElementById('cam-img').src=capturedPhoto;
     document.getElementById('cam-img').className='absolute inset-0 w-full h-full object-cover';
     document.getElementById('cam-vid').className='hidden';
-    checkSubmitReady();
-    toast('Foto HP Berhasil!','Kamera smartphone terhubung');
-  };
-  r.readAsDataURL(f);
+    document.getElementById('cam-placeholder').className='hidden';
+    checkAttReady();toast('📸 Foto HP Berhasil!','');
+  };r.readAsDataURL(f);
 }
 
-function getGPS() {
-  const box=document.getElementById('gps-box');
-  if(!navigator.geolocation){box.textContent='📍 GPS tidak tersedia';return}
-  navigator.geolocation.getCurrentPosition(pos=>{
-    currentDist=haversine(S.config.restoLat,S.config.restoLon,pos.coords.latitude,pos.coords.longitude);
-    const ok=currentDist<=S.config.geoRadius;
-    box.className=`p-2.5 rounded-xl border text-xs text-center font-bold ${ok?'bg-emerald-950/30 border-emerald-500/30 text-emerald-400':'bg-rose-950/30 border-rose-500/30 text-rose-400'}`;
-    box.textContent=`📍 ${currentDist}m dari Resto ${ok?'✅ Dalam Radius':'❌ DI LUAR RADIUS!'}`;
-    if(!ok) document.getElementById('gps-warn').className='p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-300 font-bold';
-    else document.getElementById('gps-warn').className='hidden';
-    checkSubmitReady();
-  },()=>{
-    currentDist=0; box.textContent='📍 Izin lokasi ditolak — GPS tidak aktif';
-    checkSubmitReady();
-  },{enableHighAccuracy:true,timeout:10000});
-}
-
-function checkSubmitReady() {
-  const btn=document.getElementById('submit-att-btn');
+function checkAttReady(){
+  const btn=document.getElementById('submit-att-btn');if(!btn)return;
   const hasPhoto=!!capturedPhoto;
-  const gpsOk=currentDist<=S.config.geoRadius||currentDist===0;
-  btn.disabled=!(hasPhoto&&gpsOk);
+  const gpsOk=currentDist!==null&&currentDist<=S.config.geoRadius;
+  const gpsUnavail=currentDist===0; // GPS unavailable fallback
+  btn.disabled=!(hasPhoto&&(gpsOk||gpsUnavail));
 }
 
-function submitAtt() {
+function submitAtt(){
   if(!capturedPhoto)return;
-  const nm=document.getElementById('cam-name').value||S.loggedIn.name;
-  const rl=document.getElementById('cam-role').value||S.loggedIn.role;
-  S.attendance.unshift({id:'a'+uid(),name:nm,role:rl,date:today(),time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),status:new Date().getHours()<8?'Hadir':'Terlambat',photo:capturedPhoto,dist:currentDist});
-  save();closeModal();go('attendance');toast('Absensi Sukses!','Foto selfie + GPS terverifikasi');
+  const nm=S.loggedIn.name;
+  const rl=S.loggedIn.role;
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  const isLate=now.getHours()>=9||(now.getHours()===8&&now.getMinutes()>30);
+
+  S.attendance.unshift({id:'a'+Date.now(),staffId:S.loggedIn.id,name:nm,role:rl,date:today(),time:timeStr,status:isLate?'Terlambat':'Hadir',photo:capturedPhoto,dist:currentDist||0,lat:currentLat,lon:currentLon});
+  save();closeModal();go('attendance');
+  toast('✅ Absensi Berhasil!',`${nm} · ${timeStr} WIB · ${currentDist||0}m`);
 }
 
-function exportCSV() {
-  let csv="No Invoice,Pelanggan,Total,Dibayar,Sisa,Status\n"+S.invoices.map(i=>`${i.id},"${i.custName}",${i.total},${i.paid},${i.remaining},${i.status}`).join("\n");
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURI(csv);a.download=`Laporan_RestoOS_${today()}.csv`;document.body.appendChild(a);a.click();a.remove();
+// ===================== CSV EXPORT =====================
+function exportCSV(){
+  let csv='No,Invoice,Order,Pelanggan,Phone,Total,Dibayar,Sisa,Status,Terbit,Jatuh Tempo\n';
+  S.invoices.forEach((i,n)=>{csv+=`${n+1},${i.id},${i.orderId},"${i.custName}",${i.custPhone},${i.total},${i.paid},${i.remaining},${i.status},${i.issueDate},${i.dueDate}\n`});
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download=`Laporan_RestoOS_${today()}.csv`;document.body.appendChild(a);a.click();a.remove();
+  toast('📥 CSV Terunduh','Buka file di Excel/Google Sheets');
 }
 
-// ====== INIT ======
+// ===================== INIT =====================
 window.onload=function(){
-  if(S.loggedIn) showApp();
-};
-
-// Auto-sync polling
-setInterval(()=>{
-  const fresh=loadState();
-  if(JSON.stringify(fresh.orders)!==JSON.stringify(S.orders)||JSON.stringify(fresh.invoices)!==JSON.stringify(S.invoices)){
-    S.orders=fresh.orders;S.invoices=fresh.invoices;S.customers=fresh.customers;S.expenses=fresh.expenses;S.attendance=fresh.attendance;
-    render();
+  if(S.loggedIn){
+    // Verify staff still exists & active
+    const staff=loadStaff();
+    const valid=staff.find(s=>s.id===S.loggedIn.id&&s.active);
+    if(valid)showApp();
+    else handleLogout();
   }
-},3000);
+};
 </script>
 </body>
 </html>
