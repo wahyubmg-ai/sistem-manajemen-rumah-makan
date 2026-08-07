@@ -322,6 +322,16 @@ function buildReminderMsg(inv, label){
   return `Halo ${inv.custName} 🙏,\n\nSekadar mengingatkan bahwa ada sisa tagihan untuk invoice *${inv.id}* sebesar *${rp(inv.remaining)}*.\n\nStatus saat ini: *${label}*\nTanggal Jatuh Tempo: ${inv.dueDate}\n${delivInfo}\nMohon untuk menyelesaikan pembayaran ke rekening berikut:\n${S.config.bankInfo}\n\nJika sudah melakukan pembayaran, mohon abaikan pesan ini. Terima kasih! 😊\n— ${S.config.restoName}`;
 }
 
+function buildOrderStatusMsg(o){
+  let stMsg = '';
+  if(o.status === 'Baru') stMsg = 'sudah kami terima dan sedang menunggu konfirmasi';
+  else if(o.status === 'Diproses') stMsg = 'sedang kami proses dan siapkan di dapur';
+  else if(o.status === 'Siap') stMsg = 'sudah siap dan akan segera dikirim';
+  else if(o.status === 'Selesai') stMsg = 'sudah selesai kami proses';
+  const delivInfo = o.delivDate ? `\n\nJadwal Pengiriman:\n🗓️ ${o.delivDate} ⏰ ${o.delivTime||''}` : '';
+  return `Halo ${o.custName} 😊,\n\nPesanan Anda *(${o.id})* ${stMsg}.${delivInfo}\n\nTerima kasih atas kepercayaannya! 🙏\n— ${S.config.restoName}`;
+}
+
 // ===================== PAYMENT SYNC =====================
 function recordPayment(invId,amount){
   const inv=S.invoices.find(i=>i.id===invId);if(!inv||amount<=0)return;
@@ -564,7 +574,7 @@ function vOrders(c){
               <div class="flex gap-1.5 flex-wrap">
                 <button onclick="mBonDapur('${o.id}')" class="btn-s text-[10px] touch-btn">🍳 Bon Dapur</button>
                 ${!S.invoices.find(i=>i.orderId===o.id)?`<button onclick="genInvoice('${o.id}')" class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 touch-btn">📄 Buat Invoice</button>`:`<span class="text-[10px] text-emerald-400 font-bold self-center">✅ ${S.invoices.find(i=>i.orderId===o.id).id}</span>`}
-                <a href="${waLink(o.custPhone,`Halo ${o.custName}, pesanan *${o.id}* Anda sedang ${o.status.toLowerCase()}. Terima kasih! 🙏\n— ${S.config.restoName}`)}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 WA</a>
+                <a href="${waLink(o.custPhone,buildOrderStatusMsg(o))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 WA</a>
                 ${S.loggedIn && (S.loggedIn.role==='owner' || S.loggedIn.role==='manager') ? `<button onclick="if(confirm('Hapus order ${o.id}?')){deleteOrder('${o.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Hapus</button>` : ''}
               </div>
             </div>
