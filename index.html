@@ -95,7 +95,7 @@
 <script>
 const supabaseUrl = 'https://xuuzcjgsvubhkscyvkih.supabase.co';
 const supabaseKey = 'sb_publishable_wsT8JO2g1l3z4JiKQKvl8w_ejklq_Gl';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supa = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ===================== CONFIGURATION =====================
 const DEFAULTS = {restoName:'Resto Syukuran Nusantara',restoAddress:'Jl. Senopati No. 88, Jakarta',bankInfo:'BCA 123-456-7890 a.n. Resto Syukuran',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
@@ -114,7 +114,7 @@ function loadStaff(){
 function saveStaff(staff){ 
   localStorage.setItem('ro_staff',JSON.stringify(staff)); 
   if (window.supabase) {
-    supabase.from('staff').upsert(staff).then(()=>{}).catch(e=>console.error(e));
+    supa.from('staff').upsert(staff).then(()=>{}).catch(e=>console.error(e));
   }
 }
 
@@ -157,30 +157,30 @@ async function syncToSupabase(){
   if(!S.loggedIn) return;
   try {
     const configData = { id: 'default', resto_name: S.config.restoName, resto_address: S.config.restoAddress, bank_info: S.config.bankInfo, resto_lat: S.config.restoLat, resto_lon: S.config.restoLon, geo_radius: S.config.geoRadius, esb_sales: S.esbSales };
-    await supabase.from('config').upsert(configData);
+    await supa.from('config').upsert(configData);
 
     const ctrArr = Object.keys(S.counters).map(k=>({id:k, val:S.counters[k]}));
-    if(ctrArr.length>0) await supabase.from('counters').upsert(ctrArr);
+    if(ctrArr.length>0) await supa.from('counters').upsert(ctrArr);
 
-    if(S.menu.length>0) await supabase.from('menu').upsert(S.menu);
-    if(S.customers.length>0) await supabase.from('customers').upsert(S.customers);
+    if(S.menu.length>0) await supa.from('menu').upsert(S.menu);
+    if(S.customers.length>0) await supa.from('customers').upsert(S.customers);
     
     if(S.orders.length>0){
-      await supabase.from('orders').upsert(S.orders.map(o=>({
+      await supa.from('orders').upsert(S.orders.map(o=>({
         id:o.id, cust_id:o.custId, cust_name:o.custName, cust_phone:o.custPhone, cust_addr:o.custAddr, type:o.type, status:o.status, date:o.date, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
       })));
     }
     
     if(S.invoices.length>0){
-      await supabase.from('invoices').upsert(S.invoices.map(i=>({
+      await supa.from('invoices').upsert(S.invoices.map(i=>({
         id:i.id, order_id:i.orderId, cust_id:i.custId, cust_name:i.custName, cust_phone:i.custPhone, cust_addr:i.custAddr, issue_date:i.issueDate, due_date:i.dueDate, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
       })));
     }
     
-    if(S.expenses.length>0) await supabase.from('expenses').upsert(S.expenses.map(e=>({id:e.id, date:e.date, cat:e.cat, "desc":e.desc, amount:e.amount})));
+    if(S.expenses.length>0) await supa.from('expenses').upsert(S.expenses.map(e=>({id:e.id, date:e.date, cat:e.cat, "desc":e.desc, amount:e.amount})));
     
     if(S.attendance.length>0){
-      await supabase.from('attendance').upsert(S.attendance.map(a=>({
+      await supa.from('attendance').upsert(S.attendance.map(a=>({
         id: a.id, staff_id: a.staffId, name: a.name, date: a.date, check_in: a.checkIn, check_out: a.checkOut, photo_in: a.photoIn, photo_out: a.photoOut, loc_in: a.locIn, loc_out: a.locOut
       })));
     }
@@ -192,15 +192,15 @@ async function syncToSupabase(){
 async function fetchSupabaseState(){
   try {
     const [conf, staff, menu, cust, ord, inv, exp, att, ctr] = await Promise.all([
-      supabase.from('config').select('*'),
-      supabase.from('staff').select('*'),
-      supabase.from('menu').select('*'),
-      supabase.from('customers').select('*'),
-      supabase.from('orders').select('*'),
-      supabase.from('invoices').select('*'),
-      supabase.from('expenses').select('*'),
-      supabase.from('attendance').select('*'),
-      supabase.from('counters').select('*')
+      supa.from('config').select('*'),
+      supa.from('staff').select('*'),
+      supa.from('menu').select('*'),
+      supa.from('customers').select('*'),
+      supa.from('orders').select('*'),
+      supa.from('invoices').select('*'),
+      supa.from('expenses').select('*'),
+      supa.from('attendance').select('*'),
+      supa.from('counters').select('*')
     ]);
 
     if(conf.data && conf.data.length>0){
@@ -252,7 +252,7 @@ async function deleteMenu(id) {
   save();
   render();
   try {
-    if(S.loggedIn) await supabase.from('menu').delete().eq('id', id);
+    if(S.loggedIn) await supa.from('menu').delete().eq('id', id);
   } catch(e) { console.error('Failed to delete menu in Supabase', e); }
 }
 
