@@ -311,7 +311,7 @@ function getReminders(){
 // ===================== WA INVOICE MSG =====================
 function buildWaMsg(inv){
   const items=inv.items.map(i=>`• ${i.qty}x ${i.name} = ${rp(i.qty*i.price)}`).join('\n');
-  return `Halo ${inv.custName},\n\nBerikut tagihan invoice *${inv.id}*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\nPajak 10%: ${rp(inv.tax)}\n${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa: '+rp(inv.remaining)+'*\n':''}\nTransfer ke: ${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
+  return `Halo ${inv.custName},\n\nBerikut tagihan invoice *${inv.id}*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\n${inv.tax>0?'Pajak: '+rp(inv.tax)+'\n':''}${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa: '+rp(inv.remaining)+'*\n':''}\nTransfer ke: ${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
 }
 
 // ===================== PAYMENT SYNC =====================
@@ -1008,7 +1008,7 @@ function mOrder(prefillCustId){
       <button type="button" onclick="addOrderItem()" class="w-full py-2 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-bold touch-btn border border-cyan-500/30">+ Tambah Item Menu</button>
       <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1">
         <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="c-sub" class="text-slate-200 font-bold">Rp 0</span></div>
-        <div class="flex justify-between text-slate-400"><span>Pajak 10%</span><span id="c-tax" class="text-slate-200 font-bold">Rp 0</span></div>
+        <div class="hidden justify-between text-slate-400"><span>Pajak</span><span id="c-tax" class="text-white">Rp 0</span></div>
         <div class="flex justify-between font-black text-white pt-1 border-t border-slate-800"><span>TOTAL</span><span id="c-tot" class="text-emerald-400 text-sm">Rp 0</span></div>
       </div>
       <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn shadow-lg">💾 Simpan Order</button></div>
@@ -1044,7 +1044,7 @@ function calcOrderTotal(){
     const qty=parseInt(row.querySelector('.oi-qty').value)||1;
     if(mi)sub+=mi.price*qty;
   });
-  const tax=Math.round(sub*0.1);
+  const tax=0; //Math.round(sub*0.1);
   document.getElementById('c-sub').textContent=rp(sub);
   document.getElementById('c-tax').textContent=rp(tax);
   document.getElementById('c-tot').textContent=rp(sub+tax);
@@ -1084,7 +1084,7 @@ function submitOrder(e){
   if(items.length===0){toast('⚠️ Error','Tambahkan minimal 1 item menu');return}
 
   const sub=items.reduce((s,i)=>s+i.price*i.qty,0);
-  const tax=Math.round(sub*0.1);
+  const tax=0; //Math.round(sub*0.1);
   const total=sub+tax;
 
   // CRM SYNC: find or create customer
@@ -1163,7 +1163,7 @@ function mInvDetail(invId){
         ${inv.items.map(i=>`<tr class="border-b"><td class="py-1">${i.name}</td><td class="text-right">${i.qty}</td><td class="text-right">${rp(i.price)}</td><td class="text-right font-bold">${rp(i.qty*i.price)}</td></tr>`).join('')}
       </tbody></table>
       <div class="text-right space-y-0.5">
-        <div>Pajak 10%: ${rp(inv.tax)}</div>
+        ${inv.tax>0?`<div>Pajak: ${rp(inv.tax)}</div>`:''}
         ${inv.ship?`<div>Ongkir: ${rp(inv.ship)}</div>`:''}
         <div class="font-black text-emerald-700 text-sm border-t pt-1">Total: ${rp(inv.total)}</div>
         ${inv.paid>0?`<div class="text-emerald-600">Dibayar: ${rp(inv.paid)}</div>`:''}
