@@ -100,7 +100,7 @@ const supabaseKey = 'sb_publishable_wsT8JO2g1l3z4JiKQKvl8w_ejklq_Gl';
 const supa = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ===================== CONFIGURATION =====================
-const DEFAULTS = {restoName:'Catering Ceu Ipa',restoAddress:'Jl. Banjarsari No.38, Tanjungsari, Sumedang',bankInfo:'BCA 123-456-7890 a.n. Catering Ceu Ipa',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
+const DEFAULTS = {restoName:'Catering Ceu Ipa',restoAddress:'Jl. Banjarsari No.38, Tanjungsari, Sumedang',bankInfo:'Bank Mandiri 1310029290808 a.n. Wahyu Indra',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
 let webcamStream=null, searchQ='', filterSt='All';
 
 // ===================== STAFF DATABASE =====================
@@ -169,13 +169,13 @@ async function syncToSupabase(){
     
     if(S.orders.length>0){
       await supa.from('orders').upsert(S.orders.map(o=>({
-        id:o.id, cust_id:o.custId, cust_name:o.custName, cust_phone:o.custPhone, cust_addr:o.custAddr, type:o.type, status:o.status, date:o.date, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
+        id:o.id, cust_id:o.custId, cust_name:o.custName, cust_phone:o.custPhone, cust_addr:o.custAddr, type:o.type, status:o.status, date:o.date, deliv_date:o.delivDate, deliv_time:o.delivTime, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
       })));
     }
     
     if(S.invoices.length>0){
       await supa.from('invoices').upsert(S.invoices.map(i=>({
-        id:i.id, order_id:i.orderId, cust_id:i.custId, cust_name:i.custName, cust_phone:i.custPhone, cust_addr:i.custAddr, issue_date:i.issueDate, due_date:i.dueDate, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
+        id:i.id, order_id:i.orderId, cust_id:i.custId, cust_name:i.custName, cust_phone:i.custPhone, cust_addr:i.custAddr, issue_date:i.issueDate, due_date:i.dueDate, deliv_date:i.delivDate, deliv_time:i.delivTime, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
       })));
     }
     
@@ -214,10 +214,10 @@ async function fetchSupabaseState(){
     if(menu.data) S.menu = menu.data;
     if(cust.data) S.customers = cust.data;
     if(ord.data) S.orders = ord.data.map(o=>({
-      id:o.id, custId:o.cust_id, custName:o.cust_name, custPhone:o.cust_phone, custAddr:o.cust_addr, type:o.type, status:o.status, date:o.date, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
+      id:o.id, custId:o.cust_id, custName:o.cust_name, custPhone:o.cust_phone, custAddr:o.cust_addr, type:o.type, status:o.status, date:o.date, delivDate:o.deliv_date, delivTime:o.deliv_time, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
     }));
     if(inv.data) S.invoices = inv.data.map(i=>({
-      id:i.id, orderId:i.order_id, custId:i.cust_id, custName:i.cust_name, custPhone:i.cust_phone, custAddr:i.cust_addr, issueDate:i.issue_date, dueDate:i.due_date, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
+      id:i.id, orderId:i.order_id, custId:i.cust_id, custName:i.cust_name, custPhone:i.cust_phone, custAddr:i.cust_addr, issueDate:i.issue_date, dueDate:i.due_date, delivDate:i.deliv_date, delivTime:i.deliv_time, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
     }));
     if(exp.data) S.expenses = exp.data.map(e=>({id:e.id, date:e.date, cat:e.cat, desc:e.desc, amount:e.amount}));
     if(att.data) S.attendance = att.data.map(a=>({
@@ -313,11 +313,13 @@ function getReminders(){
 // ===================== WA INVOICE MSG =====================
 function buildWaMsg(inv){
   const items=inv.items.map(i=>`• ${i.qty}x ${i.name} = ${rp(i.qty*i.price)}`).join('\n');
-  return `Halo ${inv.custName},\n\nBerikut tagihan pesanan Anda *(${inv.id})*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\n${inv.tax>0?'Pajak: '+rp(inv.tax)+'\n':''}${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa Pembayaran: '+rp(inv.remaining)+'*\n':''}\nMohon ditransfer ke:\n${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
+  const delivInfo = inv.delivDate ? `\nJadwal Kirim: ${inv.delivDate} ${inv.delivTime||''}\n` : '';
+  return `Halo ${inv.custName},\n\nBerikut tagihan pesanan Anda *(${inv.id})*:${delivInfo}\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\n${inv.tax>0?'Pajak: '+rp(inv.tax)+'\n':''}${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa Pembayaran: '+rp(inv.remaining)+'*\n':''}\nMohon ditransfer ke:\n${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
 }
 
 function buildReminderMsg(inv, label){
-  return `Halo ${inv.custName} 🙏,\n\nSekadar mengingatkan bahwa ada sisa tagihan untuk invoice *${inv.id}* sebesar *${rp(inv.remaining)}*.\n\nStatus saat ini: *${label}*\nTanggal Jatuh Tempo: ${inv.dueDate}\n\nMohon untuk menyelesaikan pembayaran ke rekening berikut:\n${S.config.bankInfo}\n\nJika sudah melakukan pembayaran, mohon abaikan pesan ini. Terima kasih! 😊\n— ${S.config.restoName}`;
+  const delivInfo = inv.delivDate ? `Jadwal Kirim: ${inv.delivDate} ${inv.delivTime||''}\n` : '';
+  return `Halo ${inv.custName} 🙏,\n\nSekadar mengingatkan bahwa ada sisa tagihan untuk invoice *${inv.id}* sebesar *${rp(inv.remaining)}*.\n\nStatus saat ini: *${label}*\nTanggal Jatuh Tempo: ${inv.dueDate}\n${delivInfo}\nMohon untuk menyelesaikan pembayaran ke rekening berikut:\n${S.config.bankInfo}\n\nJika sudah melakukan pembayaran, mohon abaikan pesan ini. Terima kasih! 😊\n— ${S.config.restoName}`;
 }
 
 // ===================== PAYMENT SYNC =====================
@@ -550,6 +552,7 @@ function vOrders(c){
                 <div class="text-xs font-black text-white">${o.id}</div>
                 <div class="text-[11px] text-slate-400 truncate">${o.custName} · ${o.custPhone}</div>
                 <div class="text-[10px] text-slate-500">${o.date} · ${o.type}</div>
+                ${o.delivDate ? `<div class="text-[10px] font-bold text-amber-400 mt-1 flex items-center gap-1"><span class="text-sm">🚚</span> Kirim: ${o.delivDate} ${o.delivTime||''}</div>` : ''}
               </div>
               <select onchange="updateOrderStatus('${o.id}',this.value)" class="inp touch-btn w-auto text-[11px] font-bold ${stColors[o.status]||'text-white'}" style="max-width:130px;padding:6px 10px">
                 ${['Baru','Diproses','Siap','Selesai'].map(st=>`<option value="${st}" ${o.status===st?'selected':''}>${st}</option>`).join('')}
@@ -600,6 +603,7 @@ function vInvoices(c){
                 <div class="text-xs font-black text-white">${inv.id} <span class="text-[10px] text-slate-500 font-normal">← ${inv.orderId}</span></div>
                 <div class="text-[11px] text-slate-400">${inv.custName} · ${inv.custPhone}${urgency}</div>
                 <div class="text-[10px] text-slate-500">Terbit: ${inv.issueDate} · Jatuh tempo: ${inv.dueDate}</div>
+                ${inv.delivDate ? `<div class="text-[10px] font-bold text-amber-400 mt-1 flex items-center gap-1"><span class="text-sm">🚚</span> Kirim: ${inv.delivDate} ${inv.delivTime||''}</div>` : ''}
               </div>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${inv.status==='Lunas'?'bg-emerald-500/20 text-emerald-400':inv.status==='Sebagian Dibayar'?'bg-amber-500/20 text-amber-400':'bg-rose-500/20 text-rose-400'}">${inv.status}</span>
             </div>
@@ -626,7 +630,7 @@ function genInvoice(oid){
   const o=S.orders.find(x=>x.id===oid);if(!o)return;
   if(S.invoices.find(i=>i.orderId===oid)){toast('Sudah Ada','Invoice sudah diterbitkan untuk order ini');go('invoices');return}
   const invId=nextId('INV');
-  const inv={id:invId,orderId:o.id,custId:o.custId,custName:o.custName,custPhone:o.custPhone,custAddr:o.custAddr,issueDate:today(),dueDate:new Date(Date.now()+3*864e5).toISOString().slice(0,10),total:o.total,paid:0,remaining:o.total,status:'Terkirim',method:'Transfer',items:o.items.map(i=>({name:i.name,qty:i.qty,price:i.price})),tax:o.tax,ship:o.ship||0};
+  const inv={id:invId,orderId:o.id,custId:o.custId,custName:o.custName,custPhone:o.custPhone,custAddr:o.custAddr,issueDate:today(),dueDate:new Date(Date.now()+3*864e5).toISOString().slice(0,10),delivDate:o.delivDate,delivTime:o.delivTime,total:o.total,paid:0,remaining:o.total,status:'Terkirim',method:'Transfer',items:o.items.map(i=>({name:i.name,qty:i.qty,price:i.price})),tax:o.tax,ship:o.ship||0};
   S.invoices.unshift(inv);save();go('invoices');
   toast('📄 Invoice Diterbitkan!',`${invId} — ${rp(inv.total)} untuk ${o.custName}`);
 }
@@ -1010,6 +1014,10 @@ function mOrder(prefillCustId){
         <div><label class="text-[10px] text-slate-400 font-bold">Tipe Order</label><select id="o-tp" class="inp touch-btn"><option>Catering</option><option>Pre-order</option><option>Event</option><option>Harian</option></select></div>
         <div><label class="text-[10px] text-slate-400 font-bold">Alamat Kirim</label><input type="text" id="o-ad" class="inp touch-btn"></div>
       </div>
+      <div class="grid grid-cols-2 gap-2 p-2 rounded-xl bg-amber-950/20 border border-amber-500/20">
+        <div><label class="text-[10px] text-amber-400 font-bold">Tgl Kirim (Opsional)</label><input type="date" id="o-ddate" class="inp touch-btn text-amber-100"></div>
+        <div><label class="text-[10px] text-amber-400 font-bold">Jam Kirim</label><input type="time" id="o-dtime" class="inp touch-btn text-amber-100"></div>
+      </div>
       <div id="order-items-list" class="space-y-2"></div>
       <button type="button" onclick="addOrderItem()" class="w-full py-2 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-bold touch-btn border border-cyan-500/30">+ Tambah Item Menu</button>
       <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1">
@@ -1077,6 +1085,8 @@ function submitOrder(e){
   const ph=document.getElementById('o-ph').value.trim();
   const ad=document.getElementById('o-ad').value.trim();
   const tp=document.getElementById('o-tp').value;
+  const ddate=document.getElementById('o-ddate')?document.getElementById('o-ddate').value:'';
+  const dtime=document.getElementById('o-dtime')?document.getElementById('o-dtime').value:'';
 
   // Collect items
   const items=[];
@@ -1108,7 +1118,7 @@ function submitOrder(e){
   }
 
   const orderId=nextId('ORD');
-  S.orders.unshift({id:orderId,custId,custName:nm,custPhone:ph,custAddr:ad,type:tp,status:'Baru',date:today(),items,subtotal:sub,tax,ship:0,total});
+  S.orders.unshift({id:orderId,custId,custName:nm,custPhone:ph,custAddr:ad,type:tp,status:'Baru',date:today(),delivDate:ddate,delivTime:dtime,items,subtotal:sub,tax,ship:0,total});
   save();closeModal();go('orders');
   toast('✅ Order Tersimpan!',`${orderId} — ${items.length} item untuk ${nm}`);
 }
@@ -1164,7 +1174,11 @@ function mInvDetail(invId){
         <div><h2 class="text-base font-black text-emerald-800">${S.config.restoName}</h2><p class="text-[10px] text-slate-500">${S.config.restoAddress}</p></div>
         <div class="text-right"><div class="font-black text-emerald-700 text-sm">${inv.id}</div><div class="text-[10px] text-slate-500">${inv.issueDate}</div></div>
       </div>
-      <div><div class="font-bold">Kepada: ${inv.custName}</div><div class="text-slate-600">📱 ${inv.custPhone} · 📍 ${inv.custAddr}</div></div>
+      <div>
+        <div class="font-bold">Kepada: ${inv.custName}</div>
+        <div class="text-slate-600">📱 ${inv.custPhone} · 📍 ${inv.custAddr}</div>
+        ${inv.delivDate ? `<div class="mt-1.5 p-1.5 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[10px] font-bold">🚚 Jadwal Kirim: ${inv.delivDate} ${inv.delivTime||''}</div>` : ''}
+      </div>
       <table class="w-full text-[11px]"><thead><tr class="border-b-2"><th class="text-left py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Harga</th><th class="text-right">Jumlah</th></tr></thead><tbody>
         ${inv.items.map(i=>`<tr class="border-b"><td class="py-1">${i.name}</td><td class="text-right">${i.qty}</td><td class="text-right">${rp(i.price)}</td><td class="text-right font-bold">${rp(i.qty*i.price)}</td></tr>`).join('')}
       </tbody></table>
