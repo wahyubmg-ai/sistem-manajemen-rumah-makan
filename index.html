@@ -311,7 +311,11 @@ function getReminders(){
 // ===================== WA INVOICE MSG =====================
 function buildWaMsg(inv){
   const items=inv.items.map(i=>`• ${i.qty}x ${i.name} = ${rp(i.qty*i.price)}`).join('\n');
-  return `Halo ${inv.custName},\n\nBerikut tagihan invoice *${inv.id}*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\n${inv.tax>0?'Pajak: '+rp(inv.tax)+'\n':''}${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa: '+rp(inv.remaining)+'*\n':''}\nTransfer ke: ${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
+  return `Halo ${inv.custName},\n\nBerikut tagihan pesanan Anda *(${inv.id})*:\n${items}\n\nSubtotal: ${rp(inv.total-inv.tax-(inv.ship||0))}\n${inv.tax>0?'Pajak: '+rp(inv.tax)+'\n':''}${inv.ship?'Ongkir: '+rp(inv.ship)+'\n':''}*Total: ${rp(inv.total)}*\n${inv.paid>0?'Sudah dibayar: '+rp(inv.paid)+'\n':''}${inv.remaining>0?'*Sisa Pembayaran: '+rp(inv.remaining)+'*\n':''}\nMohon ditransfer ke:\n${S.config.bankInfo}\n\nTerima kasih! 🙏\n— ${S.config.restoName}`;
+}
+
+function buildReminderMsg(inv, label){
+  return `Halo ${inv.custName} 🙏,\n\nSekadar mengingatkan bahwa ada sisa tagihan untuk invoice *${inv.id}* sebesar *${rp(inv.remaining)}*.\n\nStatus saat ini: *${label}*\nTanggal Jatuh Tempo: ${inv.dueDate}\n\nMohon untuk menyelesaikan pembayaran ke rekening berikut:\n${S.config.bankInfo}\n\nJika sudah melakukan pembayaran, mohon abaikan pesan ini. Terima kasih! 😊\n— ${S.config.restoName}`;
 }
 
 // ===================== PAYMENT SYNC =====================
@@ -477,7 +481,7 @@ function vDashboard(c){
               <span class="text-xs text-slate-400 ml-1">— ${r.custName}</span>
               <div class="text-xs font-extrabold text-rose-400 mt-0.5">Sisa: ${rp(r.remaining)}</div>
             </div>
-            <a href="${waLink(r.custPhone,buildWaMsg(r))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-bold text-center touch-btn shadow-lg">📱 Tagih WA</a>
+            <a href="${waLink(r.custPhone,buildReminderMsg(r, r.label))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-[11px] font-bold text-center touch-btn shadow-lg">📱 Tagih WA</a>
           </div>
         `).join('')}
       </div>`:''}
