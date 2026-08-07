@@ -272,6 +272,15 @@ async function deleteOrder(id) {
   } catch(e) { console.error('Failed to delete order in Supabase', e); }
 }
 
+async function deleteInvoice(id) {
+  S.invoices = S.invoices.filter(i=>i.id!==id);
+  save();
+  render();
+  try {
+    if(S.loggedIn) await supa.from('invoices').delete().eq('id', id);
+  } catch(e) { console.error('Failed to delete invoice in Supabase', e); }
+}
+
 function toast(t,m){
   const c=document.getElementById('toast-container'),d=document.createElement('div');
   d.className='p-3 rounded-2xl bg-slate-900 border border-emerald-500 text-emerald-300 text-xs font-bold shadow-2xl mb-2 pointer-events-auto animate-pulse';
@@ -599,6 +608,7 @@ function vInvoices(c){
                 <a href="${waLink(inv.custPhone,buildWaMsg(inv))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 Tagih WA</a>
               `:'<span class="text-emerald-400 text-[10px] font-bold self-center">✅ Lunas</span>'}
               <button onclick="mInvDetail('${inv.id}')" class="btn-s text-[10px] touch-btn">📄 Detail/Cetak</button>
+              ${S.loggedIn && (S.loggedIn.role==='owner' || S.loggedIn.role==='manager') ? `<button onclick="if(confirm('Hapus/Void invoice ${inv.id}?')){deleteInvoice('${inv.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Void/Hapus</button>` : ''}
             </div>
           </div>`;
         }).join('')}
