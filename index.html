@@ -787,7 +787,7 @@ function vCRM(c){
               ${custOrders.slice(0,3).map(o=>`<div class="text-[10px] text-slate-400">${o.id} · ${o.date} · <span class="font-bold ${o.status==='Selesai'?'text-emerald-400':'text-amber-400'}">${o.status}</span> · ${rp(o.total)}</div>`).join('')}
             </div>`:''}
             <div class="flex gap-1.5 pt-1">
-              <a href="${waLink(cu.phone,\`Halo \${cu.name}, terima kasih menjadi pelanggan setia \${S.config.restoName}! Ada yang bisa kami bantu? 🙏\`)}" target="_blank" class="flex-1 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn text-center">💬 Chat WA</a>
+              <a href="${waLink(cu.phone,`Halo ${cu.name}, terima kasih menjadi pelanggan setia ${S.config.restoName}! Ada yang bisa kami bantu? 🙏`)}" target="_blank" class="flex-1 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn text-center">💬 Chat WA</a>
               <button onclick="mOrder('${cu.id}')" class="flex-1 py-2 rounded-lg bg-cyan-500/15 text-cyan-400 text-[10px] font-bold touch-btn">+ Order</button>
               <button onclick="deleteCustomer('${cu.id}')" class="flex-1 py-2 rounded-lg bg-rose-500/15 text-rose-400 text-[10px] font-bold touch-btn">🗑 Hapus</button>
             </div>
