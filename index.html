@@ -256,6 +256,22 @@ async function deleteMenu(id) {
   } catch(e) { console.error('Failed to delete menu in Supabase', e); }
 }
 
+async function deleteOrder(id) {
+  // Hapus invoice terkait jika ada
+  const inv = S.invoices.find(i=>i.orderId===id);
+  if(inv) {
+    S.invoices = S.invoices.filter(i=>i.id!==inv.id);
+    if(S.loggedIn) await supa.from('invoices').delete().eq('id', inv.id).catch(console.error);
+  }
+  // Hapus order
+  S.orders = S.orders.filter(o=>o.id!==id);
+  save();
+  render();
+  try {
+    if(S.loggedIn) await supa.from('orders').delete().eq('id', id);
+  } catch(e) { console.error('Failed to delete order in Supabase', e); }
+}
+
 function toast(t,m){
   const c=document.getElementById('toast-container'),d=document.createElement('div');
   d.className='p-3 rounded-2xl bg-slate-900 border border-emerald-500 text-emerald-300 text-xs font-bold shadow-2xl mb-2 pointer-events-auto animate-pulse';
@@ -531,6 +547,7 @@ function vOrders(c){
                 <button onclick="mBonDapur('${o.id}')" class="btn-s text-[10px] touch-btn">🍳 Bon Dapur</button>
                 ${!S.invoices.find(i=>i.orderId===o.id)?`<button onclick="genInvoice('${o.id}')" class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 touch-btn">📄 Buat Invoice</button>`:`<span class="text-[10px] text-emerald-400 font-bold self-center">✅ ${S.invoices.find(i=>i.orderId===o.id).id}</span>`}
                 <a href="${waLink(o.custPhone,`Halo ${o.custName}, pesanan *${o.id}* Anda sedang ${o.status.toLowerCase()}. Terima kasih! 🙏\n— ${S.config.restoName}`)}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 WA</a>
+                ${S.loggedIn && (S.loggedIn.role==='owner' || S.loggedIn.role==='manager') ? `<button onclick="if(confirm('Hapus order ${o.id}?')){deleteOrder('${o.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Hapus</button>` : ''}
               </div>
             </div>
           </div>`;
@@ -734,7 +751,10 @@ function vMenu(c){
           <div class="p-4 rounded-2xl glass">
             <div class="flex justify-between items-start">
               <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">${m.cat}</span>
-              <button onclick="if(confirm('Hapus ${m.name}?')){deleteMenu('${m.id}')}" class="btn-s text-[10px] text-rose-400 touch-btn">🗑 Hapus</button>
+              <div class="flex gap-2">
+                <button onclick="mEditMenu('${m.id}')" class="btn-s text-[10px] text-cyan-400 touch-btn">✏️ Edit</button>
+                <button onclick="if(confirm('Hapus ${m.name}?')){deleteMenu('${m.id}')}" class="btn-s text-[10px] text-rose-400 touch-btn">🗑 Hapus</button>
+              </div>
             </div>
             <div class="text-sm font-bold text-white mt-2">${m.name}</div>
             <div class="text-base font-black text-emerald-400 mt-1">${rp(m.price)}</div>
@@ -1202,6 +1222,32 @@ function submitMenu(e){
   e.preventDefault();
   S.menu.unshift({id:'m'+Date.now(),name:document.getElementById('mn-nm').value.trim(),price:Number(document.getElementById('mn-pr').value),cat:document.getElementById('mn-ct').value});
   save();closeModal();go('menu');toast('✅ Tersimpan','Menu baru tersedia di form order');
+}
+
+function mEditMenu(mid){
+  const m = S.menu.find(x=>x.id===mid);
+  if(!m) return;
+  openModal(`
+    <div class="flex justify-between items-center pb-3 border-b border-slate-800"><h3 class="text-sm font-bold text-white">✏️ Edit Menu</h3><button onclick="closeModal()" class="text-slate-400 text-lg touch-btn">✕</button></div>
+    <form onsubmit="updateMenu(event, '${mid}')" class="space-y-3 pt-3">
+      <div><label class="text-[10px] text-slate-400 font-bold">Nama Menu *</label><input type="text" id="mn-nm-e" required class="inp touch-btn" value="${m.name}"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-[10px] text-slate-400 font-bold">Harga (Rp) *</label><input type="number" id="mn-pr-e" required class="inp touch-btn font-bold" value="${m.price}"></div>
+        <div><label class="text-[10px] text-slate-400 font-bold">Kategori</label><select id="mn-ct-e" class="inp touch-btn"><option ${m.cat==='Main'?'selected':''}>Main</option><option ${m.cat==='Beverage'?'selected':''}>Beverage</option><option ${m.cat==='Catering'?'selected':''}>Catering</option><option ${m.cat==='Snack'?'selected':''}>Snack</option><option ${m.cat==='Dessert'?'selected':''}>Dessert</option></select></div>
+      </div>
+      <div class="flex gap-2 pt-2"><button type="button" onclick="closeModal()" class="flex-1 btn-s touch-btn">Batal</button><button type="submit" class="flex-1 btn-p touch-btn">💾 Simpan Perubahan</button></div>
+    </form>
+  `);
+}
+function updateMenu(e, mid){
+  e.preventDefault();
+  const m = S.menu.find(x=>x.id===mid);
+  if(m){
+    m.name = document.getElementById('mn-nm-e').value.trim();
+    m.price = Number(document.getElementById('mn-pr-e').value);
+    m.cat = document.getElementById('mn-ct-e').value;
+    save();closeModal();go('menu');toast('✅ Diperbarui','Data menu berhasil diupdate');
+  }
 }
 
 // --- STAFF ADD/EDIT ---
