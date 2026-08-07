@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RestoOS — Sistem Manajemen Rumah Makan</title>
+  <title>Ceu Ipa App — Internal System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>tailwind.config={theme:{extend:{colors:{brand:{50:'#f0fdf4',500:'#22c55e',600:'#16a34a',700:'#15803d'}}}}}</script>
@@ -33,8 +33,8 @@
 <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6">
   <div class="w-full max-w-sm space-y-5 text-center">
     <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-3xl shadow-2xl shadow-emerald-500/30">🍱</div>
-    <h1 class="text-2xl font-black text-white">RestoOS</h1>
-    <p class="text-xs text-slate-400">Sistem Manajemen Rumah Makan & BI</p>
+    <h1 class="text-2xl font-black text-white">Ceu Ipa App</h1>
+    <p class="text-xs text-slate-400">Sistem Operasional Internal</p>
     <form onsubmit="handleLogin(event)" class="space-y-3 text-left">
       <div>
         <label class="text-[11px] font-bold text-slate-400 block mb-1">Username / Nama</label>
@@ -54,7 +54,7 @@
       <div class="text-[11px] text-slate-400">📝 <b class="text-amber-400">admin</b> / <b>1234</b> — Order & Invoice</div>
       <div class="text-[11px] text-slate-400">👤 <b class="text-slate-300">karyawan1</b> / <b>1234</b> — Absensi saja</div>
     </div>
-    <p class="text-[10px] text-slate-600">v3.0 — Data tersimpan permanen di browser</p>
+    <p class="text-[10px] text-slate-600">v3.0 — Catering Ceu Ipa Internal System</p>
   </div>
 </div>
 
@@ -63,7 +63,7 @@
   <div class="flex items-center gap-3">
     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-lg shadow-lg shadow-emerald-500/20">🍱</div>
     <div>
-      <span class="font-extrabold text-sm text-white">RestoOS</span>
+      <span class="font-extrabold text-sm text-white">Ceu Ipa App</span>
       <span class="text-[9px] font-bold ml-1.5 px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v3.0</span>
       <div class="text-[10px] text-slate-500" id="logged-in-as"></div>
     </div>
@@ -98,7 +98,7 @@ const supabaseKey = 'sb_publishable_wsT8JO2g1l3z4JiKQKvl8w_ejklq_Gl';
 const supa = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // ===================== CONFIGURATION =====================
-const DEFAULTS = {restoName:'Resto Syukuran Nusantara',restoAddress:'Jl. Senopati No. 88, Jakarta',bankInfo:'BCA 123-456-7890 a.n. Resto Syukuran',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
+const DEFAULTS = {restoName:'Catering Ceu Ipa',restoAddress:'Jl. Banjarsari No.38, Tanjungsari, Sumedang',bankInfo:'BCA 123-456-7890 a.n. Catering Ceu Ipa',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
 let webcamStream=null, searchQ='', filterSt='All';
 
 // ===================== STAFF DATABASE =====================
@@ -899,7 +899,7 @@ function saveSettings(){
 function backupData(){
   const backup={
     _meta:{
-      app:'RestoOS',
+      app:'CeuIpaApp',
       version:'3.0',
       exportDate:new Date().toISOString(),
       exportBy:S.loggedIn?S.loggedIn.name:'System'
@@ -921,13 +921,13 @@ function backupData(){
   const a=document.createElement('a');
   const dateStr=today().replace(/-/g,'');
   a.href=url;
-  a.download=`RestoOS_Backup_${dateStr}.json`;
+  a.download=`CeuIpa_Backup_${dateStr}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
   localStorage.setItem('ro_last_backup',new Date().toISOString());
-  toast('📥 Backup Berhasil!',`File RestoOS_Backup_${dateStr}.json sudah terdownload`);
+  toast('✅ Backup Berhasil!',`File CeuIpa_Backup_${dateStr}.json sudah terdownload`);
   setTimeout(()=>render(),500); // refresh to show last backup date
 }
 
@@ -942,9 +942,9 @@ function restoreData(event){
       const data=JSON.parse(e.target.result);
 
       // Validate it's a RestoOS backup
-      if(!data._meta||data._meta.app!=='RestoOS'){
+      if(!data._meta||(data._meta.app!=='RestoOS' && data._meta.app!=='CeuIpaApp')){
         statusBox.className='p-2 rounded-xl bg-rose-950 border border-rose-500/30 text-[11px] text-center font-bold text-rose-400';
-        statusBox.textContent='❌ File bukan backup RestoOS yang valid!';
+        statusBox.textContent='❌ File bukan backup Ceu Ipa yang valid!';
         return;
       }
 
