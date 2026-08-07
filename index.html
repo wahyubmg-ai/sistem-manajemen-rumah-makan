@@ -91,7 +91,12 @@
   <div id="modal-content" class="relative w-full max-w-lg md:rounded-3xl rounded-t-3xl bg-slate-900 border border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto p-5"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const supabaseUrl = 'https://xuuzcjgsvubhkscyvkih.supabase.co';
+const supabaseKey = 'sb_publishable_wsT8JO2g1l3z4JiKQKvl8w_ejklq_Gl';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 // ===================== CONFIGURATION =====================
 const DEFAULTS = {restoName:'Resto Syukuran Nusantara',restoAddress:'Jl. Senopati No. 88, Jakarta',bankInfo:'BCA 123-456-7890 a.n. Resto Syukuran',restoLat:-6.2088,restoLon:106.8456,geoRadius:200};
 let webcamStream=null, searchQ='', filterSt='All';
@@ -106,47 +111,32 @@ function loadStaff(){
     {id:'s5',username:'karyawan2',password:'1234',fullName:'Siti Aminah',role:'karyawan',phone:'081200005555',active:true}
   ];
 }
-function saveStaff(staff){ localStorage.setItem('ro_staff',JSON.stringify(staff)); }
+function saveStaff(staff){ 
+  localStorage.setItem('ro_staff',JSON.stringify(staff)); 
+  if (window.supabase) {
+    supabase.from('staff').upsert(staff).then(()=>{}).catch(e=>console.error(e));
+  }
+}
 
 // ===================== STATE =====================
 function loadState(){
   return {
     loggedIn: JSON.parse(localStorage.getItem('ro_logged'))||null,
     config: JSON.parse(localStorage.getItem('ro_config'))||{...DEFAULTS},
-    menu: JSON.parse(localStorage.getItem('ro_menu'))||[
-      {id:'m1',name:'Nasi Tumpeng Mini Komplit',price:45000,cat:'Catering'},
-      {id:'m2',name:'Ayam Goreng Kremes + Nasi',price:32000,cat:'Main'},
-      {id:'m3',name:'Bebek Bakar Madu Spesial',price:48000,cat:'Main'},
-      {id:'m4',name:'Es Teh Manis Jumbo',price:7000,cat:'Beverage'},
-      {id:'m5',name:'Es Jeruk Peras Alami',price:10000,cat:'Beverage'},
-      {id:'m6',name:'Paket Prasmanan 50 Porsi',price:2500000,cat:'Catering'}
-    ],
-    customers: JSON.parse(localStorage.getItem('ro_cust'))||[
-      {id:'c1',name:'Bpk. Hendra Wijaya',phone:'081234567890',address:'Jl. Sudirman No. 45, Jakarta',tag:'VIP',ltv:12500000,orders:8},
-      {id:'c2',name:'Ibu Ratna Pertiwi',phone:'081987654321',address:'Wisma Asri Lt. 4, Kebayoran',tag:'Catering Regular',ltv:8400000,orders:4},
-      {id:'c3',name:'PT Sinergi Mandiri',phone:'085678901234',address:'Pulogadung Blok C-12',tag:'Corporate',ltv:24500000,orders:6},
-      {id:'c4',name:'Sdri. Maya Indah',phone:'087811223344',address:'Apt Rasuna Tower 3',tag:'Baru',ltv:350000,orders:1}
-    ],
-    orders: JSON.parse(localStorage.getItem('ro_ord'))||[
-      {id:'ORD-2026-0001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',type:'Catering',status:'Diproses',date:'2026-08-05',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000,notes:'Pedas sedang'},{name:'Es Jeruk Peras',qty:25,price:10000,notes:'Es dipisah'}],subtotal:1375000,tax:137500,ship:50000,total:1562500},
-      {id:'ORD-2026-0002',custId:'c4',custName:'Sdri. Maya Indah',custPhone:'087811223344',custAddr:'Apt Rasuna Tower 3',type:'Pre-order',status:'Selesai',date:'2026-08-05',items:[{name:'Ayam Goreng Kremes',qty:10,price:32000,notes:''},{name:'Es Teh Manis',qty:10,price:7000,notes:''}],subtotal:390000,tax:39000,ship:0,total:429000}
-    ],
-    invoices: JSON.parse(localStorage.getItem('ro_inv'))||[
-      {id:'INV-2026-0001',orderId:'ORD-2026-0001',custId:'c1',custName:'Bpk. Hendra Wijaya',custPhone:'081234567890',custAddr:'Jl. Sudirman No. 45',issueDate:'2026-08-05',dueDate:'2026-08-08',total:1562500,paid:500000,remaining:1062500,status:'Sebagian Dibayar',method:'Transfer BCA',items:[{name:'Nasi Tumpeng Mini',qty:25,price:45000},{name:'Es Jeruk Peras',qty:25,price:10000}],tax:137500,ship:50000},
-      {id:'INV-2026-0002',orderId:'ORD-2026-0003',custId:'c3',custName:'PT Sinergi Mandiri',custPhone:'085678901234',custAddr:'Pulogadung',issueDate:'2026-08-01',dueDate:'2026-08-04',total:5650000,paid:0,remaining:5650000,status:'Jatuh Tempo',method:'Transfer Mandiri',items:[{name:'Paket Prasmanan 50 Porsi',qty:2,price:2500000}],tax:500000,ship:150000}
-    ],
-    expenses: JSON.parse(localStorage.getItem('ro_exp'))||[
-      {id:'EXP-0001',date:'2026-08-05',cat:'Bahan Baku',desc:'Belanja Pasar: Ayam & Daging',amount:1450000},
-      {id:'EXP-0002',date:'2026-08-04',cat:'Operasional',desc:'Gas LPG 12kg (3 tabung)',amount:630000}
-    ],
+    menu: JSON.parse(localStorage.getItem('ro_menu'))||[],
+    customers: JSON.parse(localStorage.getItem('ro_cust'))||[],
+    orders: JSON.parse(localStorage.getItem('ro_ord'))||[],
+    invoices: JSON.parse(localStorage.getItem('ro_inv'))||[],
+    expenses: JSON.parse(localStorage.getItem('ro_exp'))||[],
     attendance: JSON.parse(localStorage.getItem('ro_att'))||[],
-    esbSales: JSON.parse(localStorage.getItem('ro_esb'))||3250000,
-    counters: JSON.parse(localStorage.getItem('ro_ctr'))||{ord:2,inv:2,exp:2},
+    esbSales: JSON.parse(localStorage.getItem('ro_esb'))||0,
+    counters: JSON.parse(localStorage.getItem('ro_ctr'))||{ord:0,inv:0,exp:0},
     tab:'dashboard'
   };
 }
 let S = loadState();
 
+let syncTimeout=null;
 function save(){
   localStorage.setItem('ro_config',JSON.stringify(S.config));
   localStorage.setItem('ro_menu',JSON.stringify(S.menu));
@@ -158,6 +148,88 @@ function save(){
   localStorage.setItem('ro_esb',JSON.stringify(S.esbSales));
   localStorage.setItem('ro_logged',JSON.stringify(S.loggedIn));
   localStorage.setItem('ro_ctr',JSON.stringify(S.counters));
+
+  if(syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(syncToSupabase, 2000);
+}
+
+async function syncToSupabase(){
+  if(!S.loggedIn) return;
+  try {
+    const configData = { id: 'default', resto_name: S.config.restoName, resto_address: S.config.restoAddress, bank_info: S.config.bankInfo, resto_lat: S.config.restoLat, resto_lon: S.config.restoLon, geo_radius: S.config.geoRadius, esb_sales: S.esbSales };
+    await supabase.from('config').upsert(configData);
+
+    const ctrArr = Object.keys(S.counters).map(k=>({id:k, val:S.counters[k]}));
+    if(ctrArr.length>0) await supabase.from('counters').upsert(ctrArr);
+
+    if(S.menu.length>0) await supabase.from('menu').upsert(S.menu);
+    if(S.customers.length>0) await supabase.from('customers').upsert(S.customers);
+    
+    if(S.orders.length>0){
+      await supabase.from('orders').upsert(S.orders.map(o=>({
+        id:o.id, cust_id:o.custId, cust_name:o.custName, cust_phone:o.custPhone, cust_addr:o.custAddr, type:o.type, status:o.status, date:o.date, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
+      })));
+    }
+    
+    if(S.invoices.length>0){
+      await supabase.from('invoices').upsert(S.invoices.map(i=>({
+        id:i.id, order_id:i.orderId, cust_id:i.custId, cust_name:i.custName, cust_phone:i.custPhone, cust_addr:i.custAddr, issue_date:i.issueDate, due_date:i.dueDate, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
+      })));
+    }
+    
+    if(S.expenses.length>0) await supabase.from('expenses').upsert(S.expenses.map(e=>({id:e.id, date:e.date, cat:e.cat, "desc":e.desc, amount:e.amount})));
+    
+    if(S.attendance.length>0){
+      await supabase.from('attendance').upsert(S.attendance.map(a=>({
+        id: a.id, staff_id: a.staffId, name: a.name, date: a.date, check_in: a.checkIn, check_out: a.checkOut, photo_in: a.photoIn, photo_out: a.photoOut, loc_in: a.locIn, loc_out: a.locOut
+      })));
+    }
+  } catch(e) {
+    console.error('Supabase Sync Error:', e);
+  }
+}
+
+async function fetchSupabaseState(){
+  try {
+    const [conf, staff, menu, cust, ord, inv, exp, att, ctr] = await Promise.all([
+      supabase.from('config').select('*'),
+      supabase.from('staff').select('*'),
+      supabase.from('menu').select('*'),
+      supabase.from('customers').select('*'),
+      supabase.from('orders').select('*'),
+      supabase.from('invoices').select('*'),
+      supabase.from('expenses').select('*'),
+      supabase.from('attendance').select('*'),
+      supabase.from('counters').select('*')
+    ]);
+
+    if(conf.data && conf.data.length>0){
+      const c = conf.data[0];
+      S.config = { restoName: c.resto_name, restoAddress: c.resto_address, bank_info: c.bank_info, restoLat: c.resto_lat, restoLon: c.resto_lon, geoRadius: c.geo_radius };
+      S.esbSales = c.esb_sales || 0;
+    }
+    if(staff.data) saveStaff(staff.data);
+    if(menu.data) S.menu = menu.data;
+    if(cust.data) S.customers = cust.data;
+    if(ord.data) S.orders = ord.data.map(o=>({
+      id:o.id, custId:o.cust_id, custName:o.cust_name, custPhone:o.cust_phone, custAddr:o.cust_addr, type:o.type, status:o.status, date:o.date, items:o.items, subtotal:o.subtotal, tax:o.tax, ship:o.ship, total:o.total
+    }));
+    if(inv.data) S.invoices = inv.data.map(i=>({
+      id:i.id, orderId:i.order_id, custId:i.cust_id, custName:i.cust_name, custPhone:i.cust_phone, custAddr:i.cust_addr, issueDate:i.issue_date, dueDate:i.due_date, total:i.total, paid:i.paid, remaining:i.remaining, status:i.status, method:i.method, items:i.items, tax:i.tax, ship:i.ship
+    }));
+    if(exp.data) S.expenses = exp.data.map(e=>({id:e.id, date:e.date, cat:e.cat, desc:e.desc, amount:e.amount}));
+    if(att.data) S.attendance = att.data.map(a=>({
+      id:a.id, staffId:a.staff_id, name:a.name, date:a.date, checkIn:a.check_in, checkOut:a.check_out, photoIn:a.photo_in, photoOut:a.photo_out, locIn:a.loc_in, locOut:a.loc_out
+    }));
+    if(ctr.data){
+      S.counters = {};
+      ctr.data.forEach(c => S.counters[c.id] = c.val);
+    }
+    // Update local cache so next reload is fast
+    save();
+  } catch(e) {
+    console.error('Fetch Supabase Error:', e);
+  }
 }
 
 // ===================== HELPERS =====================
@@ -173,6 +245,15 @@ function nextId(prefix){
   S.counters[key] = (S.counters[key]||0)+1;
   save();
   return `${prefix}-${yr()}-${String(S.counters[key]).padStart(4,'0')}`;
+}
+
+async function deleteMenu(id) {
+  S.menu = S.menu.filter(x=>x.id!==id);
+  save();
+  render();
+  try {
+    if(S.loggedIn) await supabase.from('menu').delete().eq('id', id);
+  } catch(e) { console.error('Failed to delete menu in Supabase', e); }
 }
 
 function toast(t,m){
@@ -224,13 +305,28 @@ function recordPayment(invId,amount){
 }
 
 // ===================== AUTH WITH PASSWORD =====================
-function handleLogin(e){
+async function handleLogin(e){
   e.preventDefault();
   const u=document.getElementById('login-user').value.trim().toLowerCase();
   const p=document.getElementById('login-pass').value;
+  const errBox=document.getElementById('login-err');
+  
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldText = btn.innerHTML;
+  btn.innerHTML = '⏳ Menghubungkan ke Cloud...';
+  btn.disabled = true;
+
+  try {
+    await fetchSupabaseState();
+  } catch(err) {
+    console.error(err);
+  }
+  
+  btn.innerHTML = oldText;
+  btn.disabled = false;
+
   const staff=loadStaff();
   const found=staff.find(s=>s.username.toLowerCase()===u&&s.password===p&&s.active);
-  const errBox=document.getElementById('login-err');
   if(!found){
     errBox.className='p-2 rounded-xl bg-rose-950 border border-rose-500/40 text-[11px] text-rose-300 font-bold text-center';
     errBox.textContent='❌ Username atau password salah!';
@@ -638,7 +734,7 @@ function vMenu(c){
           <div class="p-4 rounded-2xl glass">
             <div class="flex justify-between items-start">
               <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300">${m.cat}</span>
-              <button onclick="if(confirm('Hapus ${m.name}?')){S.menu=S.menu.filter(x=>x.id!=='${m.id}');save();render()}" class="text-[10px] text-slate-600 hover:text-rose-400">🗑</button>
+              <button onclick="if(confirm('Hapus ${m.name}?')){deleteMenu('${m.id}')}" class="btn-s text-[10px] text-rose-400 touch-btn">🗑 Hapus</button>
             </div>
             <div class="text-sm font-bold text-white mt-2">${m.name}</div>
             <div class="text-base font-black text-emerald-400 mt-1">${rp(m.price)}</div>
@@ -687,10 +783,30 @@ function toggleStaff(sid){
 // ===================== VIEW: SETTINGS =====================
 function vSettings(c){
   const cf=S.config;
+  const lastBackup=localStorage.getItem('ro_last_backup');
+  const backupAge=lastBackup?Math.round((Date.now()-new Date(lastBackup).getTime())/864e5):null;
   c.innerHTML=`
     <div class="space-y-5 max-w-lg">
       <h2 class="text-lg font-black text-white">⚙️ Pengaturan Usaha</h2>
+
+      <!-- BACKUP & RESTORE -->
+      <div class="p-5 rounded-2xl ${backupAge===null||backupAge>=7?'bg-amber-950/30 border border-amber-500/30':'glass'} space-y-3">
+        <h3 class="text-sm font-bold text-white">💾 Backup & Restore Data</h3>
+        <p class="text-[11px] text-slate-400">Data tersimpan di browser. Kalau browser di-clear atau ganti HP, data bisa hilang. <b class="text-amber-300">Rutin backup minimal 1x seminggu!</b></p>
+        ${lastBackup?`<div class="text-[10px] ${backupAge>=7?'text-amber-400 font-bold':'text-slate-500'}">Terakhir backup: ${new Date(lastBackup).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})} ${backupAge>=7?' ⚠️ Sudah '+backupAge+' hari lalu!':' ✅'}</div>`:'<div class="text-[10px] text-rose-400 font-bold">⚠️ Belum pernah backup!</div>'}
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="backupData()" class="py-3 rounded-xl bg-emerald-500 text-white text-xs font-bold touch-btn shadow-lg">📥 Download Backup</button>
+          <label class="py-3 rounded-xl bg-cyan-500/20 text-cyan-300 text-xs font-bold touch-btn text-center cursor-pointer border border-cyan-500/30 flex items-center justify-center gap-1">
+            📤 Restore Backup
+            <input type="file" accept=".json" onchange="restoreData(event)" class="hidden">
+          </label>
+        </div>
+        <div id="restore-status" class="hidden p-2 rounded-xl text-[11px] text-center font-bold"></div>
+      </div>
+
+      <!-- PENGATURAN USAHA -->
       <div class="p-5 rounded-2xl glass space-y-4">
+        <h3 class="text-sm font-bold text-white">🏪 Info Usaha</h3>
         <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Nama Resto</label><input type="text" id="s-name" value="${cf.restoName}" class="inp touch-btn"></div>
         <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Alamat</label><input type="text" id="s-addr" value="${cf.restoAddress}" class="inp touch-btn"></div>
         <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Info Rekening Bank (untuk Invoice)</label><input type="text" id="s-bank" value="${cf.bankInfo}" class="inp touch-btn"></div>
@@ -707,9 +823,12 @@ function vSettings(c){
         <div><label class="text-[11px] font-bold text-slate-400 block mb-1">Rekap Omset ESB POS Hari Ini (Rp)</label><input type="number" id="s-esb" value="${S.esbSales}" class="inp touch-btn font-bold"></div>
         <button onclick="saveSettings()" class="w-full btn-p text-sm touch-btn shadow-lg">💾 Simpan Pengaturan</button>
       </div>
-      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[10px] text-slate-500">
-        <b>Reset Data:</b> Jika ingin mulai dari nol, klik tombol di bawah.<br>
-        <button onclick="if(confirm('HAPUS SEMUA DATA? Tidak bisa dikembalikan!')){localStorage.clear();location.reload()}" class="mt-2 px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 font-bold touch-btn">🗑 Reset Semua Data</button>
+
+      <!-- DANGER ZONE -->
+      <div class="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/20 space-y-2">
+        <h3 class="text-sm font-bold text-rose-300">⚠️ Zona Berbahaya</h3>
+        <p class="text-[10px] text-slate-500">Reset akan menghapus SEMUA data (order, invoice, pelanggan, absensi, staf). Pastikan sudah backup!</p>
+        <button onclick="if(confirm('⚠️ HAPUS SEMUA DATA?\\n\\nSemua order, invoice, pelanggan, absensi akan hilang.\\nPastikan sudah download backup!\\n\\nLanjutkan?')){localStorage.clear();location.reload()}" class="px-4 py-2 rounded-xl bg-rose-500/20 text-rose-400 text-xs font-bold touch-btn border border-rose-500/30">🗑 Reset Semua Data</button>
       </div>
     </div>`;
 }
@@ -742,7 +861,99 @@ function saveSettings(){
   save();toast('✅ Tersimpan!','Pengaturan berhasil diperbarui');
 }
 
-// ===================== MODALS =====================
+// ===================== BACKUP & RESTORE =====================
+function backupData(){
+  const backup={
+    _meta:{
+      app:'RestoOS',
+      version:'3.0',
+      exportDate:new Date().toISOString(),
+      exportBy:S.loggedIn?S.loggedIn.name:'System'
+    },
+    config:S.config,
+    staff:loadStaff(),
+    menu:S.menu,
+    customers:S.customers,
+    orders:S.orders,
+    invoices:S.invoices,
+    expenses:S.expenses,
+    attendance:S.attendance,
+    esbSales:S.esbSales,
+    counters:S.counters
+  };
+  const json=JSON.stringify(backup,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const dateStr=today().replace(/-/g,'');
+  a.href=url;
+  a.download=`RestoOS_Backup_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('ro_last_backup',new Date().toISOString());
+  toast('📥 Backup Berhasil!',`File RestoOS_Backup_${dateStr}.json sudah terdownload`);
+  setTimeout(()=>render(),500); // refresh to show last backup date
+}
+
+function restoreData(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const statusBox=document.getElementById('restore-status');
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+
+      // Validate it's a RestoOS backup
+      if(!data._meta||data._meta.app!=='RestoOS'){
+        statusBox.className='p-2 rounded-xl bg-rose-950 border border-rose-500/30 text-[11px] text-center font-bold text-rose-400';
+        statusBox.textContent='❌ File bukan backup RestoOS yang valid!';
+        return;
+      }
+
+      // Show summary before restoring
+      const summary=`📊 Isi Backup (${new Date(data._meta.exportDate).toLocaleDateString('id-ID')}):\n\n`
+        +`• ${(data.orders||[]).length} Order\n`
+        +`• ${(data.invoices||[]).length} Invoice\n`
+        +`• ${(data.customers||[]).length} Pelanggan\n`
+        +`• ${(data.expenses||[]).length} Pengeluaran\n`
+        +`• ${(data.attendance||[]).length} Data Absensi\n`
+        +`• ${(data.staff||[]).length} Staf\n`
+        +`• ${(data.menu||[]).length} Menu\n\n`
+        +`⚠️ Data saat ini akan DITIMPA dengan data backup ini.\nLanjutkan?`;
+
+      if(!confirm(summary))return;
+
+      // Restore all data
+      if(data.config)localStorage.setItem('ro_config',JSON.stringify(data.config));
+      if(data.staff)localStorage.setItem('ro_staff',JSON.stringify(data.staff));
+      if(data.menu)localStorage.setItem('ro_menu',JSON.stringify(data.menu));
+      if(data.customers)localStorage.setItem('ro_cust',JSON.stringify(data.customers));
+      if(data.orders)localStorage.setItem('ro_ord',JSON.stringify(data.orders));
+      if(data.invoices)localStorage.setItem('ro_inv',JSON.stringify(data.invoices));
+      if(data.expenses)localStorage.setItem('ro_exp',JSON.stringify(data.expenses));
+      if(data.attendance)localStorage.setItem('ro_att',JSON.stringify(data.attendance));
+      if(data.esbSales!==undefined)localStorage.setItem('ro_esb',JSON.stringify(data.esbSales));
+      if(data.counters)localStorage.setItem('ro_ctr',JSON.stringify(data.counters));
+
+      statusBox.className='p-2 rounded-xl bg-emerald-950 border border-emerald-500/30 text-[11px] text-center font-bold text-emerald-400';
+      statusBox.textContent='✅ Restore berhasil! Halaman akan di-reload...';
+
+      toast('✅ Restore Berhasil!','Data dipulihkan dari backup');
+      setTimeout(()=>location.reload(),1500);
+
+    }catch(err){
+      statusBox.className='p-2 rounded-xl bg-rose-950 border border-rose-500/30 text-[11px] text-center font-bold text-rose-400';
+      statusBox.textContent='❌ File rusak atau format tidak valid: '+err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+
 
 // --- ORDER (with CRM pre-fill) ---
 function mOrder(prefillCustId){
@@ -1215,9 +1426,13 @@ function exportCSV(){
 }
 
 // ===================== INIT =====================
-window.onload=function(){
+window.onload=async function(){
   if(S.loggedIn){
-    // Verify staff still exists & active
+    document.body.insertAdjacentHTML('beforeend', `<div id="supa-loading" class="fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center text-white"><div class="text-4xl animate-bounce mb-3">📡</div><div class="text-sm font-bold text-emerald-400">Sinkronisasi Cloud...</div></div>`);
+    await fetchSupabaseState();
+    const sup = document.getElementById('supa-loading');
+    if(sup) sup.remove();
+
     const staff=loadStaff();
     const valid=staff.find(s=>s.id===S.loggedIn.id&&s.active);
     if(valid)showApp();
