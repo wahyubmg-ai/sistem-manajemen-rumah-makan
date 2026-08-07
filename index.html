@@ -318,6 +318,26 @@ async function deleteMenu(id) {
   } catch(e) { console.error('Failed to delete menu in Supabase', e); }
 }
 
+async function deleteCustomer(id) {
+  if(!confirm('Yakin hapus pelanggan ini?')) return;
+  S.customers = S.customers.filter(c=>c.id!==id);
+  save();
+  render();
+  try {
+    if(S.loggedIn) await supa.from('customers').delete().eq('id', id);
+  } catch(e) { console.error('Failed to delete customer in Supabase', e); }
+}
+
+async function deleteInvoice(id) {
+  if(!confirm('Yakin hapus invoice ini?')) return;
+  S.invoices = S.invoices.filter(i=>i.id!==id);
+  save();
+  render();
+  try {
+    if(S.loggedIn) await supa.from('invoices').delete().eq('id', id);
+  } catch(e) { console.error('Failed to delete invoice in Supabase', e); }
+}
+
 async function deleteOrder(id) {
   // Hapus invoice terkait jika ada
   const inv = S.invoices.find(i=>i.orderId===id);
@@ -635,7 +655,7 @@ function vOrders(c){
                 <button onclick="mBonDapur('${o.id}')" class="btn-s text-[10px] touch-btn">🍳 Bon Dapur</button>
                 ${!S.invoices.find(i=>i.orderId===o.id)?`<button onclick="genInvoice('${o.id}')" class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 touch-btn">📄 Buat Invoice</button>`:`<span class="text-[10px] text-emerald-400 font-bold self-center">✅ ${S.invoices.find(i=>i.orderId===o.id).id}</span>`}
                 <a href="${waLink(o.custPhone,buildOrderStatusMsg(o))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 WA</a>
-                ${S.loggedIn && (S.loggedIn.role==='owner' || S.loggedIn.role==='manager') ? `<button onclick="if(confirm('Hapus order ${o.id}?')){deleteOrder('${o.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Hapus</button>` : ''}
+                <button onclick="if(confirm('Hapus order ${o.id}?')){deleteOrder('${o.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Hapus</button>
               </div>
             </div>
           </div>`;
@@ -688,7 +708,7 @@ function vInvoices(c){
                 <a href="${waLink(inv.custPhone,buildWaMsg(inv))}" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600/80 text-white text-[10px] font-bold touch-btn">📱 Tagih WA</a>
               `:'<span class="text-emerald-400 text-[10px] font-bold self-center">✅ Lunas</span>'}
               <button onclick="mInvDetail('${inv.id}')" class="btn-s text-[10px] touch-btn">📄 Detail/Cetak</button>
-              ${S.loggedIn && (S.loggedIn.role==='owner' || S.loggedIn.role==='manager') ? `<button onclick="if(confirm('Hapus/Void invoice ${inv.id}?')){deleteInvoice('${inv.id}')}" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Void/Hapus</button>` : ''}
+              <button onclick="deleteInvoice('${inv.id}')" class="px-3 py-2 rounded-xl bg-rose-900/50 text-rose-400 text-[10px] font-bold border border-rose-500/30 touch-btn">🗑 Void/Hapus</button>
             </div>
           </div>`;
         }).join('')}
@@ -767,8 +787,9 @@ function vCRM(c){
               ${custOrders.slice(0,3).map(o=>`<div class="text-[10px] text-slate-400">${o.id} · ${o.date} · <span class="font-bold ${o.status==='Selesai'?'text-emerald-400':'text-amber-400'}">${o.status}</span> · ${rp(o.total)}</div>`).join('')}
             </div>`:''}
             <div class="flex gap-1.5 pt-1">
-              <a href="${waLink(cu.phone,`Halo ${cu.name}, terima kasih menjadi pelanggan setia ${S.config.restoName}! Ada yang bisa kami bantu? 🙏`)}" target="_blank" class="flex-1 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn text-center">💬 Chat WA</a>
+              <a href="${waLink(cu.phone,\`Halo \${cu.name}, terima kasih menjadi pelanggan setia \${S.config.restoName}! Ada yang bisa kami bantu? 🙏\`)}" target="_blank" class="flex-1 py-2 rounded-lg bg-emerald-500/15 text-emerald-400 text-[10px] font-bold touch-btn text-center">💬 Chat WA</a>
               <button onclick="mOrder('${cu.id}')" class="flex-1 py-2 rounded-lg bg-cyan-500/15 text-cyan-400 text-[10px] font-bold touch-btn">+ Order</button>
+              <button onclick="deleteCustomer('${cu.id}')" class="flex-1 py-2 rounded-lg bg-rose-500/15 text-rose-400 text-[10px] font-bold touch-btn">🗑 Hapus</button>
             </div>
           </div>`;
         }).join('')}
